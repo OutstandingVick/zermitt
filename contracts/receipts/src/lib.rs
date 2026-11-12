@@ -22,6 +22,17 @@ pub struct ReceiptMeta {
     pub tx_hashes: Vec<String>,
     /// ISO-8601 timestamp of the transfer.
     pub timestamp: String,
+    /// Optional private-agent proof (set when the parse ran in a TEE on
+    /// NEAR AI Cloud). Skipped in JSON when absent so that hashes over the
+    /// canonical metadata stay compatible with receipts that lack them.
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub agent_provider: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub model: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub attestation_hash: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", default)]
+    pub signing_key: Option<String>,
 }
 
 #[near(serializers = [borsh, json])]
@@ -111,6 +122,10 @@ mod tests {
             swap_mode: "mocked".into(),
             tx_hashes: vec!["abc".into(), "def".into()],
             timestamp: "2026-11-12T10:00:00.000Z".into(),
+            agent_provider: None,
+            model: None,
+            attestation_hash: None,
+            signing_key: None,
         }
     }
 
@@ -149,6 +164,30 @@ mod tests {
         let mut c = Receipts::new(accounts(0));
         c.record_receipt("t1".into(), "hash1".into(), meta());
         c.record_receipt("t1".into(), "hash2".into(), meta());
+    }
+
+    #[test]
+    fn optional_agent_fields_round_trip_and_skip_in_json() {
+        ctx(accounts(0));
+        let mut c = Receipts::new(accounts(0));
+        let mut with_agent = meta();
+        with_agent.agent_provider = Some("nearai".into());
+        with_agent.model = Some("deepseek-ai/DeepSeek-V3.1".into());
+        with_agent.attestation_hash = Some("ff".repeat(32));
+        with_agent.signing_key = Some("0xabc".into());
+        c.record_receipt("plain".into(), "h1".into(), meta());
+        c.record_receipt("tee".into(), "h2".into(), with_agent.clone());
+
+        let plain = c.get_receipt("plain".into()).unwrap();
+        let tee = c.get_receipt("tee".into()).unwrap();
+        assert_eq!(plain.meta.agent_provider, None);
+        assert_eq!(tee.meta.agent_provider, Some("nearai".into()));
+
+        // Absent optional fields must not appear in JSON (hash compatibility).
+        let plain_json = near_sdk::serde_json::to_string(&plain.meta).unwrap();
+        assert!(!plain_json.contains("agent_provider"));
+        let tee_json = near_sdk::serde_json::to_string(&tee.meta).unwrap();
+        assert!(tee_json.contains("\"agent_provider\":\"nearai\""));
     }
 
     #[test]
