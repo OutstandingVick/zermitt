@@ -9,14 +9,28 @@
  * Requires RELAYER_ACCOUNT_ID / RELAYER_PRIVATE_KEY in .env (funded
  * testnet account) — documented in .env.example.
  */
-import { loadConfig } from "../lib/config";
+import { KeyPair } from "near-api-js";
+import { loadConfig, requireRelayer } from "../lib/config";
 import { parseIntent } from "../lib/agent/parse";
 import { getSendQuote } from "../lib/intents/quote";
 import { executeSend } from "../lib/send/execute";
+import { executeClaim, accountExists } from "../lib/claim/execute";
+import { suggestName } from "../lib/near/names";
+import { connectNear } from "../lib/near/client";
 
 async function main() {
   const config = loadConfig();
   console.log(`Zermitt demo (DEMO_MODE=${config.demoMode}, network=${config.networkId})\n`);
+
+  // Relayer balance warning.
+  const relayer = requireRelayer(config);
+  const near = await connectNear(config);
+  const relayerBalance =
+    Number((await (await near.account(relayer.accountId)).state()).amount.toString()) / 1e24;
+  if (relayerBalance < 5)
+    console.warn(
+      `⚠️  Relayer ${relayer.accountId} holds only ${relayerBalance.toFixed(2)} NEAR — top it up (each claim link needs 1.5).\n`
+    );
 
   const text = "send $5 to mum";
   console.log(`1. parse   "${text}"`);
@@ -36,9 +50,34 @@ async function main() {
   console.log(`   link funded on testnet: ${result.linkFundTxUrl}`);
   console.log(`   claim link: ${result.claimLink}\n`);
 
-  console.log("4. claim   TODO (Phase 2): Google sign-in + gasless claim via meta-tx.");
+  console.log("4. claim   mocked Google login → named account → gasless claim + USDC payout");
+  const claimKey = new URL(result.claimLink).hash.replace(/^#k=/, "");
+  let name = suggestName(intent.recipient);
+  if (await accountExists(config, `${name}.zermitt.testnet`)) name = `${name}-${Date.now() % 100000}`;
+  const recipientKey = KeyPair.fromRandom("ed25519"); // generated client-side in the real flow
+  const claim = await executeClaim(
+    result.transfer.id,
+    name,
+    recipientKey.getPublicKey().toString(),
+    claimKey,
+    config
+  );
+  console.log(`   new account: ${claim.accountId} (recipient signed nothing on-chain)`);
+  console.log(`   create account tx:  ${claim.txUrls.create}`);
+  console.log(`   linkdrop claim tx:  ${claim.txUrls.claim}`);
+  console.log(`   storage deposit tx: ${claim.txUrls.storage}`);
+  console.log(`   USDC payout tx:     ${claim.txUrls.payout}`);
+
+  const viewer = await near.account(config.testUsdcContract);
+  const usdcRaw = (await viewer.viewFunction({
+    contractId: config.testUsdcContract,
+    methodName: "ft_balance_of",
+    args: { account_id: claim.accountId },
+  })) as string;
+  console.log(`   USDC balance of ${claim.accountId}: ${Number(usdcRaw) / 1e6}\n`);
+
   console.log("5. receipt TODO (Phase 3): on-chain receipt contract.\n");
-  console.log(`Transfer recorded: data/transfers.json (id ${result.transfer.id})`);
+  console.log(`Transfer recorded: data/transfers.json (id ${result.transfer.id}, status claimed)`);
 }
 
 main().catch((err) => {
