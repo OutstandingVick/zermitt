@@ -83,6 +83,9 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
         <a href={`/wallet?account=${success.accountId}`}>
           <button style={btn}>See my balance</button>
         </a>
+        <p style={{ fontSize: 14 }}>
+          <a href={`/r/${id}`}>Public on-chain receipt ↗</a>
+        </p>
       </div>
     );
   }

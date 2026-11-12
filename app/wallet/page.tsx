@@ -56,7 +56,8 @@ function WalletInner() {
           <span style={{ color: "#777" }}> · {new Date(h.claimedAt).toLocaleDateString()}</span>
           <p style={{ fontSize: 13, margin: "6px 0 0" }}>
             {h.claimTxUrl && <a href={h.claimTxUrl}>claim tx ↗</a>}{" "}
-            {h.payoutTxUrl && <a href={h.payoutTxUrl}>payout tx ↗</a>}
+            {h.payoutTxUrl && <a href={h.payoutTxUrl}>payout tx ↗</a>}{" "}
+            <a href={`/r/${h.id}`}>receipt ↗</a>
           </p>
         </div>
       ))}

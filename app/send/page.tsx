@@ -20,6 +20,7 @@ type SendSuccess = {
   linkFundTxUrl: string;
   swapExecution: string;
   swapNote: string;
+  transferId: string;
 };
 
 const box: React.CSSProperties = {
@@ -142,6 +143,8 @@ export default function SendPage() {
           </p>
           <p>
             <a href={success.linkFundTxUrl}>View the funding transaction on testnet ↗</a>
+            <br />
+            <a href={`/r/${success.transferId}`}>Public receipt (pending until claimed) ↗</a>
           </p>
           <div style={{ display: "flex", gap: 8 }}>
             <a
