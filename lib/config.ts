@@ -16,6 +16,10 @@ export type ZermittConfig = {
   mockLogin: boolean;
   /** Optional Anthropic key for LLM parsing; demo falls back to a deterministic parser. */
   anthropicApiKey: string | undefined;
+  /** NEAR AI Cloud key for private TEE parsing (AGENT_PROVIDER=nearai). */
+  nearaiApiKey: string | undefined;
+  /** Which parser runs: nearai (private/TEE) | anthropic | fallback. */
+  agentProvider: "nearai" | "anthropic" | "fallback";
   /** Run a REAL small mainnet Intents swap. Off by default. */
   liveIntents: boolean;
   /** NEP-141 test stablecoin used for payouts on testnet. */
@@ -45,11 +49,18 @@ export function loadConfig(): ZermittConfig {
     oneClickJwt: process.env.ONECLICK_JWT,
     mockLogin: demoMode && (process.env.MOCK_LOGIN ?? "true") !== "false",
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+    nearaiApiKey: process.env.NEARAI_API_KEY,
+    agentProvider:
+      (process.env.AGENT_PROVIDER as "nearai" | "anthropic" | "fallback" | undefined) ??
+      (process.env.NEARAI_API_KEY ? "nearai" : process.env.ANTHROPIC_API_KEY ? "anthropic" : "fallback"),
     liveIntents: process.env.LIVE_INTENTS === "true",
     testUsdcContract: process.env.TEST_USDC_CONTRACT ?? "usdc.fakes.testnet",
     mainnetAccountId: process.env.MAINNET_ACCOUNT_ID,
     mainnetPrivateKey: process.env.MAINNET_PRIVATE_KEY,
   };
+
+  if (config.agentProvider === "nearai" && !config.nearaiApiKey)
+    fail("NEARAI_API_KEY", "AGENT_PROVIDER=nearai needs a NEAR AI Cloud API key (https://cloud.near.ai).");
 
   if (config.liveIntents) {
     if (!config.mainnetAccountId)

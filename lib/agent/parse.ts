@@ -78,6 +78,31 @@ export async function parseIntentLlm(text: string, apiKey: string): Promise<Send
   return { kind: "send", amount: parsed.amount, asset: parsed.asset ?? "USDC", recipient: parsed.recipient };
 }
 
+/** Provider-switched parse: nearai (private TEE, with proof) | anthropic | fallback. */
+export async function parseIntentWithProof(
+  text: string,
+  config: {
+    agentProvider: "nearai" | "anthropic" | "fallback";
+    nearaiApiKey?: string;
+    anthropicApiKey?: string;
+  }
+): Promise<{ intent: SendIntent; proof?: import("./nearai").AgentProof }> {
+  if (config.agentProvider === "nearai" && config.nearaiApiKey) {
+    const { parseIntentNearai } = await import("./nearai");
+    try {
+      return await parseIntentNearai(text, config.nearaiApiKey);
+    } catch (err) {
+      if (err instanceof ParseError) throw err;
+      console.warn("NEAR AI parse failed, using fallback parser:", err);
+      return { intent: parseIntentFallback(text) };
+    }
+  }
+  if (config.agentProvider === "anthropic" && config.anthropicApiKey) {
+    return { intent: await parseIntent(text, config.anthropicApiKey) };
+  }
+  return { intent: parseIntentFallback(text) };
+}
+
 export async function parseIntent(text: string, apiKey?: string): Promise<SendIntent> {
   if (apiKey) {
     try {
