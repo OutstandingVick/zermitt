@@ -9,9 +9,10 @@ sign-in — no wallet, no gas, no crypto vocabulary.
 crypto. Zermitt makes the sender side one sentence and the recipient side one
 Google login, with a public receipt for every transfer.
 
-> **Status: Phase 0.** The repo scaffold and integration spikes are done.
-> Every product feature below is roadmap — nothing is claimed that the code
-> doesn't do.
+> **Status: Phase 1.** Chat-to-send works end to end in demo mode: sentence →
+> real quote → confirm → real testnet claim link. The Intents swap execution
+> is **mocked in DEMO_MODE** (Intents has no testnet) and clearly labeled;
+> quotes are real mainnet pricing. The features table below is exact.
 
 ## Quick start
 
@@ -34,10 +35,10 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 
 | Feature | Status |
 | --- | --- |
-| Chat-to-send ("send $50 to mum") | 🗺️ Roadmap |
-| Any-asset routing (NEAR Intents) | 🗺️ Roadmap |
-| Quote and confirm before sending | 🗺️ Roadmap |
-| Claim links | 🗺️ Roadmap |
+| Chat-to-send ("send $50 to mum") | ✅ (LLM with ANTHROPIC_API_KEY, deterministic fallback without) |
+| Any-asset routing (NEAR Intents) | ✅ live quotes · 🧪 execution mocked in DEMO_MODE (`LIVE_INTENTS=true` for a real mainnet swap) |
+| Quote and confirm before sending | ✅ |
+| Claim links | ✅ creation on testnet (claiming in-app is Phase 2) |
 | Google sign-in | 🗺️ Roadmap |
 | Named sub-accounts (`mum.zermitt.near`) | 🗺️ Roadmap |
 | Gasless meta-transactions | 🗺️ Roadmap |
@@ -63,13 +64,23 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 
 ## How to verify
 
-_Placeholder — to be filled as features land. Will be:_
-
 ```bash
-pnpm test
-pnpm demo:e2e
-# + receipt URLs and explorer links printed by the demo
+pnpm test        # includes 12 intent-parsing cases
+pnpm demo:e2e    # parse → real quote → (mocked swap) → REAL testnet claim link;
+                 # prints the funding transaction's nearblocks.io link
 ```
+
+Needs `RELAYER_ACCOUNT_ID`/`RELAYER_PRIVATE_KEY` in `.env` (any funded
+testnet account — see `.env.example`). Everything else runs with no keys.
+In the browser: `pnpm dev` → `/send` → type "send $5 to mum" → Confirm →
+claim link + testnet transaction link.
+
+### LIVE_INTENTS (real mainnet swap)
+
+Off by default. To record one real proof swap: set `LIVE_INTENTS=true` plus
+`MAINNET_ACCOUNT_ID`/`MAINNET_PRIVATE_KEY` for a mainnet account holding a
+little USDT (the swap is capped at 2 USDT). The send flow then executes a
+real 1Click swap and stores its transaction hash in the transfer record.
 
 ## How NEAR is used
 
