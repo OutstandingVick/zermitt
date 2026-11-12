@@ -10,8 +10,10 @@ import { useParams } from "next/navigation";
 import { canonicalJson, sha256Hex, type ReceiptMeta } from "@/lib/receipts/hash";
 import { feeComparison, COMPARISON } from "@/lib/receipts/comparison";
 
-const RECEIPTS_CONTRACT =
-  process.env.NEXT_PUBLIC_RECEIPTS_CONTRACT ?? "receipts.zermitt.testnet";
+const CONTRACTS = [
+  process.env.NEXT_PUBLIC_RECEIPTS_CONTRACT ?? "receipts-v2.zermitt.testnet",
+  "receipts.zermitt.testnet", // v1 — pre-TEE receipts
+];
 const RPC = "https://rpc.testnet.near.org";
 
 type OnChainReceipt = {
@@ -21,7 +23,15 @@ type OnChainReceipt = {
   recorded_at_ms: number;
 };
 
-async function fetchReceipt(id: string): Promise<OnChainReceipt | null> {
+async function fetchReceipt(id: string): Promise<{ receipt: OnChainReceipt; contract: string } | null> {
+  for (const contract of CONTRACTS) {
+    const r = await fetchReceiptFrom(contract, id).catch(() => null);
+    if (r) return { receipt: r, contract };
+  }
+  return null;
+}
+
+async function fetchReceiptFrom(contract: string, id: string): Promise<OnChainReceipt | null> {
   const res = await fetch(RPC, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -32,7 +42,7 @@ async function fetchReceipt(id: string): Promise<OnChainReceipt | null> {
       params: {
         request_type: "call_function",
         finality: "final",
-        account_id: RECEIPTS_CONTRACT,
+        account_id: contract,
         method_name: "get_receipt",
         args_base64: btoa(JSON.stringify({ transfer_id: id })),
       },
@@ -47,14 +57,35 @@ const box: React.CSSProperties = { border: "1px solid #ddd", borderRadius: 12, p
 
 export default function ReceiptPage() {
   const { id } = useParams<{ id: string }>();
-  const [receipt, setReceipt] = useState<OnChainReceipt | null | "loading" | "pending">("loading");
+  const [found, setFound] = useState<{ receipt: OnChainReceipt; contract: string } | "loading" | "pending">("loading");
   const [verify, setVerify] = useState<"idle" | "ok" | "bad">("idle");
+  const [sigCheck, setSigCheck] = useState<"idle" | "ok" | "bad" | "unavailable">("idle");
 
   useEffect(() => {
     fetchReceipt(id)
-      .then((r) => setReceipt(r ?? "pending"))
-      .catch(() => setReceipt("pending"));
+      .then((r) => setFound(r ?? "pending"))
+      .catch(() => setFound("pending"));
   }, [id]);
+
+  async function runSigCheck() {
+    // Check the TEE response signature in the browser: fetch the signed text
+    // and signature kept by the app, recover the ECDSA signer, and compare
+    // with the signing key committed to on-chain.
+    try {
+      const res = await fetch(`/api/receipt-proof/${id}`);
+      if (!res.ok) return setSigCheck("unavailable");
+      const p = (await res.json()) as { signedText: string; signature: string; signingKey: string };
+      const { verifyMessage } = await import("ethers");
+      const ok =
+        found !== "loading" &&
+        found !== "pending" &&
+        verifyMessage(p.signedText, p.signature).toLowerCase() === p.signingKey.toLowerCase() &&
+        p.signingKey.toLowerCase() === (found.receipt.meta.signing_key ?? "").toLowerCase();
+      setSigCheck(ok ? "ok" : "bad");
+    } catch {
+      setSigCheck("bad");
+    }
+  }
 
   async function runVerify(r: OnChainReceipt) {
     // Recompute sha256 over the canonical JSON of the DISPLAYED on-chain
@@ -64,8 +95,8 @@ export default function ReceiptPage() {
   }
 
   let body: React.ReactNode;
-  if (receipt === "loading") body = <p>Reading from the contract…</p>;
-  else if (receipt === "pending")
+  if (found === "loading") body = <p>Reading from the contract…</p>;
+  else if (found === "pending")
     body = (
       <p>
         ⏳ No on-chain receipt for this transfer yet. Receipts are recorded when
@@ -73,7 +104,8 @@ export default function ReceiptPage() {
       </p>
     );
   else {
-    const r = receipt;
+    const r = found.receipt;
+    const contract = found.contract;
     const amountUsd = Number(r.meta.amount_usdc) / 1e6;
     const cmp = feeComparison(amountUsd, Number(r.meta.fee_usd), 25);
     body = (
@@ -102,6 +134,30 @@ export default function ReceiptPage() {
           </p>
         </div>
 
+        {r.meta.agent_provider === "nearai" ? (
+          <div style={{ ...box, background: "#f3f7ff" }}>
+            <p style={{ margin: 0 }}>
+              🔒 <strong>Ran privately in a TEE</strong> (NEAR AI Cloud)
+            </p>
+            <p style={{ fontSize: 13, color: "#555", wordBreak: "break-all" }}>
+              Model: <code>{r.meta.model}</code>
+              <br />
+              Attestation hash: <code>{r.meta.attestation_hash}</code>
+              <br />
+              Signing key: <code>{r.meta.signing_key}</code> ·{" "}
+              <a href={`/api/receipt-proof/${id}`}>raw attestation report ↗</a>
+            </p>
+            <button onClick={runSigCheck} style={{ width: "100%", padding: 10, borderRadius: 8 }}>
+              Check response signature
+            </button>
+            {sigCheck === "ok" && <p style={{ color: "#0a7d2e" }}>✅ Signature recovers to the attested signing key.</p>}
+            {sigCheck === "bad" && <p style={{ color: "#b00020" }}>❌ Signature does not match the attested key.</p>}
+            {sigCheck === "unavailable" && <p style={{ color: "#777" }}>Signature material not available from this server.</p>}
+          </div>
+        ) : (
+          <p style={{ color: "#777", fontSize: 14 }}>Agent: standard (not private)</p>
+        )}
+
         <div style={box}>
           <p style={{ margin: 0 }}>{cmp.sentence}</p>
           <p style={{ fontSize: 12, color: "#777" }}>Comparison figures: {COMPARISON.source} — estimates.</p>
@@ -111,7 +167,7 @@ export default function ReceiptPage() {
           <p style={{ fontSize: 13, color: "#555", wordBreak: "break-all", margin: 0 }}>
             On-chain hash: <code>{r.receipt_hash}</code>
             <br />
-            Contract: <code>{RECEIPTS_CONTRACT}</code> · recorded{" "}
+            Contract: <code>{contract}</code> · recorded{" "}
             {new Date(r.recorded_at_ms).toLocaleString()}
           </p>
           <button

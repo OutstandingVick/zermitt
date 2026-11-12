@@ -36,6 +36,7 @@ export default function SendPage() {
   const [error, setError] = useState<string | null>(null);
   const [intent, setIntent] = useState<Intent | null>(null);
   const [quote, setQuote] = useState<Quote | null>(null);
+  const [agentProof, setAgentProof] = useState<unknown>(null);
   const [success, setSuccess] = useState<SendSuccess | null>(null);
 
   async function getQuote() {
@@ -52,6 +53,7 @@ export default function SendPage() {
       if (!res.ok) throw new Error(data.error ?? "Quote failed");
       setIntent(data.intent);
       setQuote(data.quote);
+      setAgentProof(data.agentProof ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setIntent(null);
@@ -68,7 +70,7 @@ export default function SendPage() {
       const res = await fetch("/api/send/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, intent, quote }),
+        body: JSON.stringify({ text, intent, quote, ...(agentProof ? { agentProof } : {}) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Send failed");
