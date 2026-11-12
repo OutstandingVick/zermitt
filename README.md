@@ -38,11 +38,11 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 | Chat-to-send ("send $50 to mum") | ✅ (LLM with ANTHROPIC_API_KEY, deterministic fallback without) |
 | Any-asset routing (NEAR Intents) | ✅ live quotes · 🧪 execution mocked in DEMO_MODE (`LIVE_INTENTS=true` for a real mainnet swap) |
 | Quote and confirm before sending | ✅ |
-| Claim links | ✅ creation on testnet (claiming in-app is Phase 2) |
-| Google sign-in | 🗺️ Roadmap |
-| Named sub-accounts (`mum.zermitt.near`) | 🗺️ Roadmap |
-| Gasless meta-transactions | 🗺️ Roadmap |
-| Dollar balance | 🗺️ Roadmap |
+| Claim links | ✅ created and claimed on testnet |
+| Google sign-in | 🧪 mocked login (DEMO_MODE) fully working; real Privy integration deferred — its SDK currently breaks the Next build (see `scripts/spikes/02-social-login.md`) |
+| Named sub-accounts (`mum.zermitt.testnet`) | ✅ recipient picks a name; availability checked |
+| Gasless claims | ✅ recipient signs nothing on-chain; relayer pays every step (see below) |
+| Dollar balance | ✅ `/wallet` — USDC balance + received history with tx links |
 | Receipt page | 🗺️ Roadmap |
 | On-chain receipt contract | 🗺️ Roadmap |
 | Fee comparison | 🗺️ Roadmap |
@@ -62,18 +62,53 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
    the `testnet` account — funds a link and claims it into a newly created
    account, printing both transaction hashes.
 
+## How the claim works
+
+```
+recipient's browser                      server (relayer = zermitt.testnet)
+───────────────────                      ──────────────────────────────────
+opens /claim/<id>#k=<claimKey>
+  → GET /api/claim/<id>  ──────────────▶ claim state (valid/expired/claimed)
+signs in (Google via Privy, or mock)
+generates ed25519 keypair locally
+  → POST name + PUBLIC key + claimKey ─▶ 1. create name.zermitt.testnet
+                                            (relayer pays; recipient's key
+                                            becomes the full-access key)
+                                         2. linkdrop `claim` → sends the
+                                            link's NEAR to the new account
+                                            (signed with the claim key)
+                                         3. storage_deposit on the USDC
+                                            contract (relayer pays)
+                                         4. ft_transfer USDC → new account
+  ◀── account id + 4 tx links
+/wallet shows the dollar balance
+```
+
+The recipient signs **zero** on-chain transactions, so no NEP-366
+meta-transaction is needed: all four steps are ordinary transactions signed
+by the relayer (1, 3, 4) or by the one-time linkdrop claim key (2). The
+private key generated in the browser never leaves it. Why the relayer
+creates the sub-account instead of linkdrop `create_account_and_claim`: the
+`testnet` linkdrop contract can only create direct children of `testnet`,
+and `name.zermitt.testnet` can only be created by `zermitt.testnet`.
+
 ## How to verify
 
 ```bash
-pnpm test        # includes 12 intent-parsing cases
-pnpm demo:e2e    # parse → real quote → (mocked swap) → REAL testnet claim link;
-                 # prints the funding transaction's nearblocks.io link
+pnpm test        # 30 tests: parsing, name validation, claim states, decimals
+pnpm demo:e2e    # the WHOLE flow: parse → real quote → (mocked swap) →
+                 # real testnet claim link → mocked login → named account
+                 # created → gasless claim → USDC paid out; prints every
+                 # nearblocks.io transaction link and the final balance
 ```
 
-Needs `RELAYER_ACCOUNT_ID`/`RELAYER_PRIVATE_KEY` in `.env` (any funded
-testnet account — see `.env.example`). Everything else runs with no keys.
-In the browser: `pnpm dev` → `/send` → type "send $5 to mum" → Confirm →
-claim link + testnet transaction link.
+Needs `RELAYER_ACCOUNT_ID`/`RELAYER_PRIVATE_KEY` in `.env` — a funded
+testnet account that owns the parent (`zermitt.testnet` here; sub-account
+creation requires the parent's key). Everything else runs with no keys.
+In the browser: `pnpm dev` → `/send` → "send $5 to mum" → Confirm → open
+the claim link → mocked Google login → pick a name → see `/wallet`.
+The test USDC is `usdc.fakes.testnet` (public `mint`; the relayer holds a
+minted balance it pays out from).
 
 ### LIVE_INTENTS (real mainnet swap)
 

@@ -45,6 +45,24 @@
 5. Fund account creation through the relayer (meta-transactions) so the
    recipient never pays gas.
 
+## Phase 2 update (2026-11-12)
+
+Attempted the real integration: `@privy-io/react-auth@3.51.3` breaks the
+Next 15 build out of the box — its Solana peer-dependency tree resolves
+`@solana-program/system@0.14.1` against `@solana/kit@5.5.1`, which doesn't
+export `./program-client-core` ("Module not found" at compile time). Rather
+than ship a repo that fails a clean `pnpm dev` (instant judging failure),
+the dependency was removed. The claim flow needs only an email from the
+login component, so the integration surface is a single component
+(`RealGoogleLogin` in `app/claim/[id]/page.tsx`). Options when revisiting:
+pin the Solana packages via pnpm overrides, or use Privy's lower-level
+`@privy-io/js-sdk-core`.
+
+Identity model (implemented): Privy-or-mock supplies only the identity; the
+browser generates a fresh ed25519 keypair at claim time, the public key
+becomes the new account's full-access key, and the private key stays in
+localStorage linked to the identity. Recovery is on the roadmap.
+
 ## Risks
 
 - Privy embedded-wallet signing for NEAR relies on raw-hash signing; the docs
