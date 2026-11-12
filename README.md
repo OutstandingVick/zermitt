@@ -9,6 +9,9 @@ sign-in — no wallet, no gas, no crypto vocabulary.
 crypto. Zermitt makes the sender side one sentence and the recipient side one
 Google login, with a public receipt for every transfer.
 
+**Hackathon tracks:** Payments & Remittances · Privacy & Private AI
+(NEAR AI Cloud TEE agent, flagged — see the features table).
+
 > **Status: Phase 1.** Chat-to-send works end to end in demo mode: sentence →
 > real quote → confirm → real testnet claim link. The Intents swap execution
 > is **mocked in DEMO_MODE** (Intents has no testnet) and clearly labeled;
@@ -46,7 +49,7 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 | Receipt page | ✅ `/r/[id]` reads from the contract and verifies the hash in the browser |
 | On-chain receipt contract | ✅ `receipts.zermitt.testnet` (Rust, near-sdk; wasm committed) |
 | Fee comparison | ✅ estimates, source cited below |
-| Private agent (NEAR AI Cloud attestation) | 🗺️ Roadmap |
+| Private agent (NEAR AI Cloud attestation) | 🗺️ code complete behind `AGENT_PROVIDER=nearai`, **not verified against the live service** (no API key was available) — see "Private agent" below |
 
 ## Spike findings (Phase 0)
 
@@ -132,6 +135,35 @@ file (`lib/receipts/comparison.ts`), based on the World Bank's
 [Remittance Prices Worldwide](https://remittanceprices.worldbank.org)
 global average (~6.2% to send $200) and typical 1–5 business-day bank
 settlement.
+
+### Private agent (NEAR AI Cloud) — flagged, off by default
+
+With `AGENT_PROVIDER=nearai` and a `NEARAI_API_KEY` (from cloud.near.ai),
+intent parsing runs on NEAR AI Cloud's TEE-hosted models
+(`https://cloud-api.near.ai`, OpenAI-compatible). Per request the app
+collects: the model ID, the ECDSA response signature over
+`sha256(request):sha256(response)` (from `/v1/signature/{chatId}`), and a
+fresh attestation report (`/v1/attestation/report`, random 32-byte nonce);
+it verifies locally that the hashes match and the signature recovers to the
+attested signing key, then commits `agent_provider`, `model`,
+`attestation_hash` (sha256 of the report) and `signing_key` into the
+on-chain receipt. Old receipts without these fields still verify — absent
+fields are skipped in the canonical hash on both sides.
+
+**What is verified:** request/response integrity and the signature against
+the attested key. **What is not:** the raw Intel TDX / NVIDIA quotes — that
+needs vendor attestation services (see
+[nearai/nearai-cloud-verifier](https://github.com/nearai/nearai-cloud-verifier)).
+This feature is 🗺️ because it has not been exercised against the live
+service (no API key at build time); without the flag, parsing uses
+Anthropic or the keyless fallback, and receipts say "standard (not private)".
+
+Receipts are written to **`receipts-v2.zermitt.testnet`** (adds the optional
+agent fields); the page and CLI read v2 and fall back to v1
+(`receipts.zermitt.testnet`) for older receipts. v2 was deployed fresh
+rather than migrating v1 in place: Borsh state layouts are positional, so
+an in-place upgrade would have required rewriting every stored receipt,
+and keeping v1 immutable means old receipt links stay verifiable forever.
 
 ### LIVE_INTENTS (real mainnet swap)
 
