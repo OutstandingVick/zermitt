@@ -10,7 +10,8 @@
     "test": "vitest run",
     "spike:intents": "tsx scripts/spikes/01-intents-quote-swap.ts",
     "spike:claim": "tsx scripts/spikes/03-claim-link.ts",
-    "demo:e2e": "tsx scripts/demo-e2e.ts"
+    "demo:e2e": "tsx scripts/demo-e2e.ts",
+    "verify:receipt": "tsx scripts/verify-receipt.ts"
   },
   "dependencies": {
     "near-api-js": "^5.0.1",

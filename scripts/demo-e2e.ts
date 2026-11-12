@@ -76,7 +76,17 @@ async function main() {
   })) as string;
   console.log(`   USDC balance of ${claim.accountId}: ${Number(usdcRaw) / 1e6}\n`);
 
-  console.log("5. receipt TODO (Phase 3): on-chain receipt contract.\n");
+  console.log("5. receipt read back from the contract and verified");
+  const { readReceipt, RECEIPTS_CONTRACT } = await import("../lib/receipts/record");
+  const { canonicalJson, sha256Hex } = await import("../lib/receipts/hash");
+  const onChain = await readReceipt(result.transfer.id, config.nodeUrl);
+  if (!onChain) throw new Error("Receipt not found on-chain after claim.");
+  const recomputed = await sha256Hex(canonicalJson(onChain.meta));
+  if (recomputed !== onChain.receipt_hash) throw new Error("Receipt hash mismatch!");
+  console.log(`   ✅ receipt verified on-chain (${RECEIPTS_CONTRACT})`);
+  const receiptTx = claim.transfer.transactions.receiptTxHash;
+  if (receiptTx) console.log(`   receipt tx: https://testnet.nearblocks.io/txns/${receiptTx}`);
+  console.log(`   receipt page: /r/${result.transfer.id} · pnpm verify:receipt ${result.transfer.id}\n`);
   console.log(`Transfer recorded: data/transfers.json (id ${result.transfer.id}, status claimed)`);
 }
 
