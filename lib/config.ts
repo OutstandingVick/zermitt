@@ -14,6 +14,15 @@ export type ZermittConfig = {
   oneClickJwt: string | undefined;
   /** Allow the mocked Google login path (judges don't need real accounts). */
   mockLogin: boolean;
+  /** Optional Anthropic key for LLM parsing; demo falls back to a deterministic parser. */
+  anthropicApiKey: string | undefined;
+  /** Run a REAL small mainnet Intents swap. Off by default. */
+  liveIntents: boolean;
+  /** NEP-141 test stablecoin used for payouts on testnet. */
+  testUsdcContract: string;
+  /** Mainnet account for LIVE_INTENTS only. */
+  mainnetAccountId: string | undefined;
+  mainnetPrivateKey: string | undefined;
 };
 
 function fail(name: string, hint: string): never {
@@ -35,7 +44,19 @@ export function loadConfig(): ZermittConfig {
     relayerPrivateKey: process.env.RELAYER_PRIVATE_KEY,
     oneClickJwt: process.env.ONECLICK_JWT,
     mockLogin: demoMode && (process.env.MOCK_LOGIN ?? "true") !== "false",
+    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
+    liveIntents: process.env.LIVE_INTENTS === "true",
+    testUsdcContract: process.env.TEST_USDC_CONTRACT ?? "usdc.fakes.testnet",
+    mainnetAccountId: process.env.MAINNET_ACCOUNT_ID,
+    mainnetPrivateKey: process.env.MAINNET_PRIVATE_KEY,
   };
+
+  if (config.liveIntents) {
+    if (!config.mainnetAccountId)
+      fail("MAINNET_ACCOUNT_ID", "LIVE_INTENTS=true runs a REAL mainnet swap and needs a funded mainnet account.");
+    if (!config.mainnetPrivateKey)
+      fail("MAINNET_PRIVATE_KEY", "Full-access key for MAINNET_ACCOUNT_ID (ed25519:...).");
+  }
 
   if (!demoMode) {
     // Production mode requires a real relayer.
