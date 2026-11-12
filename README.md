@@ -43,9 +43,9 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 | Named sub-accounts (`mum.zermitt.testnet`) | ✅ recipient picks a name; availability checked |
 | Gasless claims | ✅ recipient signs nothing on-chain; relayer pays every step (see below) |
 | Dollar balance | ✅ `/wallet` — USDC balance + received history with tx links |
-| Receipt page | 🗺️ Roadmap |
-| On-chain receipt contract | 🗺️ Roadmap |
-| Fee comparison | 🗺️ Roadmap |
+| Receipt page | ✅ `/r/[id]` reads from the contract and verifies the hash in the browser |
+| On-chain receipt contract | ✅ `receipts.zermitt.testnet` (Rust, near-sdk; wasm committed) |
+| Fee comparison | ✅ estimates, source cited below |
 | Private agent (NEAR AI Cloud attestation) | 🗺️ Roadmap |
 
 ## Spike findings (Phase 0)
@@ -110,6 +110,29 @@ the claim link → mocked Google login → pick a name → see `/wallet`.
 The test USDC is `usdc.fakes.testnet` (public `mint`; the relayer holds a
 minted balance it pays out from).
 
+### Receipts
+
+Every claimed transfer is recorded in the receipts contract at
+**`receipts.zermitt.testnet`** with a sha256 hash of its canonical metadata.
+Verify one with no keys and no `.env`:
+
+```bash
+pnpm verify:receipt 8caa7d85-c220-49e3-bfec-cfb3e43ffbfc   # example receipt
+```
+
+or open `/r/<transfer_id>` (example: `/r/8caa7d85-c220-49e3-bfec-cfb3e43ffbfc`)
+and press **Verify in this browser** — it reads the receipt from the contract
+(not the app database), recomputes the hash from the displayed data, and
+compares. Unclaimed transfers show as pending. The contract source is in
+`contracts/receipts/` with unit tests; the built wasm is committed at
+`contracts/receipts/res/zermitt_receipts.wasm` so judges don't need Rust.
+
+Fee-comparison figures on the receipt page are **estimates** from one config
+file (`lib/receipts/comparison.ts`), based on the World Bank's
+[Remittance Prices Worldwide](https://remittanceprices.worldbank.org)
+global average (~6.2% to send $200) and typical 1–5 business-day bank
+settlement.
+
 ### LIVE_INTENTS (real mainnet swap)
 
 Off by default. To record one real proof swap: set `LIVE_INTENTS=true` plus
@@ -125,6 +148,7 @@ and the receipts contract._
 
 ## Roadmap (beyond the features table)
 
+- Key recovery through social login
 - Cash-out partners
 - Virtual card
 - Yield on idle balances
