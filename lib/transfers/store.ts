@@ -21,9 +21,18 @@ export type TransferRecord = {
   transactions: {
     swapTxHash?: string; // only in LIVE_INTENTS mode
     linkFundTxHash?: string;
+    accountCreateTxHash?: string;
+    claimTxHash?: string;
+    storageDepositTxHash?: string;
     payoutTxHash?: string;
   };
   claimLink?: string;
+  /** Public half of the linkdrop claim key, for validating claim requests. */
+  claimKeyPublic?: string;
+  /** ISO timestamp after which the claim page refuses the link. */
+  expiresAt?: string;
+  /** Set when claimed. */
+  recipientAccountId?: string;
   status: "quoted" | "sent" | "claimed" | "failed";
 };
 
@@ -58,4 +67,24 @@ export function updateTransfer(id: string, patch: Partial<TransferRecord>): Tran
 
 export function listTransfers(): TransferRecord[] {
   return readAll();
+}
+
+export function getTransfer(id: string): TransferRecord | undefined {
+  return readAll().find((r) => r.id === id);
+}
+
+export type ClaimState =
+  | { state: "claimable" }
+  | { state: "invalid"; reason: string }
+  | { state: "expired" }
+  | { state: "already-claimed"; recipientAccountId?: string };
+
+export function claimState(record: TransferRecord | undefined): ClaimState {
+  if (!record) return { state: "invalid", reason: "This claim link doesn't exist." };
+  if (record.status === "claimed")
+    return { state: "already-claimed", recipientAccountId: record.recipientAccountId };
+  if (record.status !== "sent")
+    return { state: "invalid", reason: `This transfer is not claimable (status: ${record.status}).` };
+  if (record.expiresAt && Date.now() > Date.parse(record.expiresAt)) return { state: "expired" };
+  return { state: "claimable" };
 }

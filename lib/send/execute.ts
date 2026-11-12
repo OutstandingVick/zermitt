@@ -77,11 +77,16 @@ export async function executeSend(
     attachedDeposit: BigInt(utils.format.parseNearAmount(LINK_DEPOSIT_NEAR)!),
   });
   const linkFundTxHash = result.transaction.hash as string;
-  const claimLink = `https://testnet.mynearwallet.com/linkdrop/${LINKDROP_CONTRACT}/${claimKey.toString()}`;
+  // Zermitt's own claim page. The private claim key travels in the URL
+  // fragment (never sent to the server until the recipient claims).
+  const appUrl = process.env.APP_URL ?? "http://localhost:3000";
+  const claimLink = `${appUrl}/claim/${record.id}#k=${claimKey.toString()}`;
 
   const transfer = updateTransfer(record.id, {
     transactions: { ...record.transactions, linkFundTxHash, swapTxHash },
     claimLink,
+    claimKeyPublic: claimKey.getPublicKey().toString(),
+    expiresAt: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
     status: "sent",
   });
 
