@@ -128,7 +128,7 @@ export async function executeClaim(
   });
   const payoutHash = payoutRes.transaction.hash as string;
 
-  const updated = updateTransfer(transfer.id, {
+  let updated = updateTransfer(transfer.id, {
     status: "claimed",
     recipientAccountId: accountId,
     transactions: {
@@ -140,6 +140,18 @@ export async function executeClaim(
     },
   });
 
+  // Record the public receipt on-chain (non-fatal if it fails; the claim
+  // itself already succeeded — the receipt can be re-recorded later).
+  let receiptTxUrl: string | undefined;
+  try {
+    const { recordReceipt } = await import("../receipts/record");
+    const receipt = await recordReceipt(updated, config);
+    receiptTxUrl = receipt.receiptTxUrl;
+    updated = { ...updated, transactions: { ...updated.transactions, receiptTxHash: receipt.receiptTxHash } };
+  } catch (err) {
+    console.error("Receipt recording failed (claim succeeded):", err);
+  }
+
   const n = config.networkId;
   return {
     transfer: updated,
@@ -150,6 +162,7 @@ export async function executeClaim(
       claim: txLink(n, claimHash),
       storage: txLink(n, storageHash),
       payout: txLink(n, payoutHash),
+      ...(receiptTxUrl ? { receipt: receiptTxUrl } : {}),
     },
   };
 }

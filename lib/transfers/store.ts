@@ -25,6 +25,7 @@ export type TransferRecord = {
     claimTxHash?: string;
     storageDepositTxHash?: string;
     payoutTxHash?: string;
+    receiptTxHash?: string;
   };
   claimLink?: string;
   /** Public half of the linkdrop claim key, for validating claim requests. */
