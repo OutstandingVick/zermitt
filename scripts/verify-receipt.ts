@@ -6,7 +6,10 @@
  */
 import { canonicalJson, sha256Hex } from "../lib/receipts/hash";
 
-const CONTRACT = process.env.RECEIPTS_CONTRACT ?? "receipts.zermitt.testnet";
+const CONTRACTS = [
+  process.env.RECEIPTS_CONTRACT ?? "receipts-v2.zermitt.testnet",
+  "receipts.zermitt.testnet", // v1 — pre-TEE receipts
+];
 const RPC = process.env.NEAR_NODE_URL ?? "https://rpc.testnet.near.org";
 
 async function main() {
@@ -15,31 +18,39 @@ async function main() {
     console.error("Usage: pnpm verify:receipt <transfer_id>");
     process.exit(2);
   }
-  const res = await fetch(RPC, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 1,
-      method: "query",
-      params: {
-        request_type: "call_function",
-        finality: "final",
-        account_id: CONTRACT,
-        method_name: "get_receipt",
-        args_base64: Buffer.from(JSON.stringify({ transfer_id: id })).toString("base64"),
-      },
-    }),
-  });
-  const data = (await res.json()) as { result?: { result: number[] } };
-  if (!data.result) throw new Error("RPC query failed");
-  const receipt = JSON.parse(Buffer.from(data.result.result).toString());
+  let receipt: { meta: Record<string, unknown>; receipt_hash: string } | null = null;
+  let contract = "";
+  for (const c of CONTRACTS) {
+    const res = await fetch(RPC, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "query",
+        params: {
+          request_type: "call_function",
+          finality: "final",
+          account_id: c,
+          method_name: "get_receipt",
+          args_base64: Buffer.from(JSON.stringify({ transfer_id: id })).toString("base64"),
+        },
+      }),
+    });
+    const data = (await res.json()) as { result?: { result: number[] } };
+    if (!data.result) continue;
+    receipt = JSON.parse(Buffer.from(data.result.result).toString());
+    if (receipt) {
+      contract = c;
+      break;
+    }
+  }
   if (!receipt) {
     console.log(`No receipt on-chain for transfer ${id} (unclaimed, or unknown id).`);
     process.exit(1);
   }
 
-  console.log(`Receipt for ${id} on ${CONTRACT}:`);
+  console.log(`Receipt for ${id} on ${contract}:`);
   console.log(JSON.stringify(receipt.meta, null, 2));
   const recomputed = await sha256Hex(canonicalJson(receipt.meta));
   console.log(`\non-chain hash:  ${receipt.receipt_hash}`);
@@ -49,6 +60,18 @@ async function main() {
   } else {
     console.log("❌ Mismatch!");
     process.exit(1);
+  }
+
+  if (receipt.meta.agent_provider === "nearai") {
+    console.log(
+      `\n🔒 Private agent: model ${receipt.meta.model}, TEE signing key ${receipt.meta.signing_key}` +
+        `\n   attestation hash ${receipt.meta.attestation_hash}` +
+        `\n   These fields are covered by the verified receipt hash above. Checking the` +
+        `\n   response signature and the raw TDX/NVIDIA quotes needs the NEAR AI Cloud` +
+        `\n   signature endpoint (API key) and vendor attestation services — see README.`
+    );
+  } else {
+    console.log("\nAgent: standard (not private) — no TEE fields on this receipt.");
   }
 }
 

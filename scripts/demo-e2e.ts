@@ -11,7 +11,6 @@
  */
 import { KeyPair } from "near-api-js";
 import { loadConfig, requireRelayer } from "../lib/config";
-import { parseIntent } from "../lib/agent/parse";
 import { getSendQuote } from "../lib/intents/quote";
 import { executeSend } from "../lib/send/execute";
 import { executeClaim, accountExists } from "../lib/claim/execute";
@@ -33,9 +32,19 @@ async function main() {
     );
 
   const text = "send $5 to mum";
-  console.log(`1. parse   "${text}"`);
-  const intent = await parseIntent(text, config.anthropicApiKey);
-  console.log(`   → ${JSON.stringify(intent)} (${config.anthropicApiKey ? "LLM" : "fallback parser"})\n`);
+  console.log(`1. parse   "${text}" (provider: ${config.agentProvider})`);
+  const { parseIntentWithProof } = await import("../lib/agent/parse");
+  const { intent, proof } = await parseIntentWithProof(text, config);
+  console.log(`   → ${JSON.stringify(intent)}`);
+  if (proof) {
+    console.log(
+      `   🔒 private agent: model ${proof.model}, attestation sha256 ${proof.attestationHash.slice(0, 16)}…` +
+        `\n      signature ${proof.verified ? "✅ verified against attested key " + proof.signingKey : "❌ NOT verified"}`
+    );
+  } else if (config.agentProvider !== "nearai") {
+    console.log("   private agent skipped (no NEARAI_API_KEY)");
+  }
+  console.log();
 
   console.log("2. quote   real 1Click dry quote (mainnet pricing)");
   const quote = await getSendQuote("USDT", intent.amount, config.oneClickJwt);
@@ -45,7 +54,7 @@ async function main() {
   );
 
   console.log("3. send    swap + fund claim link");
-  const result = await executeSend(text, intent, quote, config);
+  const result = await executeSend(text, intent, quote, config, proof);
   console.log(`   swap: ${result.swapNote}`);
   console.log(`   link funded on testnet: ${result.linkFundTxUrl}`);
   console.log(`   claim link: ${result.claimLink}\n`);

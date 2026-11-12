@@ -14,6 +14,7 @@
     "verify:receipt": "tsx scripts/verify-receipt.ts"
   },
   "dependencies": {
+    "ethers": "^6.17.0",
     "near-api-js": "^5.0.1",
     "next": "^15.3.1",
     "react": "^19.1.0",

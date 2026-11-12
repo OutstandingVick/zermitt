@@ -19,8 +19,13 @@ describe("canonicalJson", () => {
     );
   });
   it("is insensitive to key order", () => {
-    const shuffled = { timestamp: meta.timestamp, sender_label: meta.sender_label, ...meta };
+    const shuffled = Object.fromEntries(Object.entries(meta).reverse());
     expect(canonicalJson(shuffled)).toBe(canonicalJson(meta));
+  });
+
+  it("agent fields extend the hash only when present (old receipts unaffected)", () => {
+    expect(canonicalJson({ ...meta, agent_provider: undefined })).toBe(canonicalJson(meta));
+    expect(canonicalJson({ ...meta, agent_provider: "nearai" })).not.toBe(canonicalJson(meta));
   });
 });
 
