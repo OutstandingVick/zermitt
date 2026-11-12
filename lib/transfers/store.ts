@@ -12,6 +12,8 @@ export type TransferRecord = {
   id: string;
   createdAt: string;
   request: { text: string; intent: SendIntent };
+  /** Present when the parse ran privately on NEAR AI Cloud (TEE). */
+  agentProof?: import("../agent/nearai").AgentProof;
   quote: SendQuote;
   route: {
     swapExecution: "mocked-demo" | "live-mainnet";

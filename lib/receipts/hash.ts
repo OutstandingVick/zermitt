@@ -17,6 +17,12 @@ export type ReceiptMeta = {
   swap_mode: "mocked" | "live";
   tx_hashes: string[];
   timestamp: string;
+  /** Present only for transfers parsed privately on NEAR AI Cloud (TEE).
+   *  Absent fields stay out of the canonical JSON, so old receipts verify. */
+  agent_provider?: string;
+  model?: string;
+  attestation_hash?: string;
+  signing_key?: string;
 };
 
 export function canonicalJson(value: unknown): string {
@@ -56,6 +62,14 @@ export function buildReceiptMeta(t: TransferRecord): ReceiptMeta {
       ...(tx.swapTxHash ? [tx.swapTxHash] : []),
     ].filter((h): h is string => Boolean(h)),
     timestamp: t.createdAt,
+    ...(t.agentProof?.provider === "nearai"
+      ? {
+          agent_provider: t.agentProof.provider,
+          model: t.agentProof.model,
+          attestation_hash: t.agentProof.attestationHash,
+          signing_key: t.agentProof.signingKey,
+        }
+      : {}),
   };
 }
 

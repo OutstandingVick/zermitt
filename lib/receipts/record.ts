@@ -7,7 +7,9 @@ import { connectNear, txLink } from "../near/client";
 import { updateTransfer, type TransferRecord } from "../transfers/store";
 import { buildReceiptMeta, hashReceiptMeta, type ReceiptMeta } from "./hash";
 
-export const RECEIPTS_CONTRACT = process.env.RECEIPTS_CONTRACT ?? "receipts.zermitt.testnet";
+/** v2 (optional agent-proof fields) is written to; v1 is kept for old receipts. */
+export const RECEIPTS_CONTRACT = process.env.RECEIPTS_CONTRACT ?? "receipts-v2.zermitt.testnet";
+export const RECEIPTS_CONTRACT_V1 = process.env.RECEIPTS_CONTRACT_V1 ?? "receipts.zermitt.testnet";
 
 export type OnChainReceipt = {
   transfer_id: string;
@@ -44,8 +46,18 @@ export async function recordReceipt(
   return { receiptTxHash, receiptTxUrl: txLink(config.networkId, receiptTxHash), hash };
 }
 
-/** Keyless view read of a receipt from the contract (via RPC). */
+/** Keyless view read: tries the v2 contract, then falls back to v1. */
 export async function readReceipt(
+  transferId: string,
+  nodeUrl = "https://rpc.testnet.near.org"
+): Promise<OnChainReceipt | null> {
+  const v2 = await readReceiptFrom(RECEIPTS_CONTRACT, transferId, nodeUrl);
+  if (v2) return v2;
+  return readReceiptFrom(RECEIPTS_CONTRACT_V1, transferId, nodeUrl);
+}
+
+export async function readReceiptFrom(
+  contractId: string,
   transferId: string,
   nodeUrl = "https://rpc.testnet.near.org"
 ): Promise<OnChainReceipt | null> {
@@ -59,7 +71,7 @@ export async function readReceipt(
       params: {
         request_type: "call_function",
         finality: "final",
-        account_id: RECEIPTS_CONTRACT,
+        account_id: contractId,
         method_name: "get_receipt",
         args_base64: Buffer.from(JSON.stringify({ transfer_id: transferId })).toString("base64"),
       },

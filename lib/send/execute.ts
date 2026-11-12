@@ -34,12 +34,14 @@ export async function executeSend(
   text: string,
   intent: SendIntent,
   quote: SendQuote,
-  config: ZermittConfig = loadConfig()
+  config: ZermittConfig = loadConfig(),
+  agentProof?: import("../agent/nearai").AgentProof
 ): Promise<SendResult> {
   const relayer = requireRelayer(config);
 
   const record = createTransfer({
     request: { text, intent },
+    ...(agentProof ? { agentProof } : {}),
     quote,
     route: {
       swapExecution: config.liveIntents ? "live-mainnet" : "mocked-demo",
