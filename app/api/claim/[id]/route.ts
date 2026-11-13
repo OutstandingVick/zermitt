@@ -18,6 +18,7 @@ export async function GET(_req: Request, { params }: Params) {
     amountUsd: Number(record.quote.amountOutUsd ?? 0),
     usdcAmount: record.quote.amountOutFormatted,
     senderNote: record.request.intent.recipient,
+    senderName: record.senderName ?? null,
     suggestedName: suggestName(record.request.intent.recipient),
     recipientAccountId: record.recipientAccountId,
     mockLogin: config.mockLogin,

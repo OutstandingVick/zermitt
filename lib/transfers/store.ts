@@ -12,6 +12,8 @@ export type TransferRecord = {
   id: string;
   createdAt: string;
   request: { text: string; intent: SendIntent };
+  /** Display name of the sender, shown on the claim page ("from Victor"). */
+  senderName?: string;
   /** Present when the parse ran privately on NEAR AI Cloud (TEE). */
   agentProof?: import("../agent/nearai").AgentProof;
   quote: SendQuote;

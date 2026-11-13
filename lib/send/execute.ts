@@ -35,12 +35,14 @@ export async function executeSend(
   intent: SendIntent,
   quote: SendQuote,
   config: ZermittConfig = loadConfig(),
-  agentProof?: import("../agent/nearai").AgentProof
+  agentProof?: import("../agent/nearai").AgentProof,
+  senderName?: string
 ): Promise<SendResult> {
   const relayer = requireRelayer(config);
 
   const record = createTransfer({
     request: { text, intent },
+    ...(senderName?.trim() ? { senderName: senderName.trim().slice(0, 40) } : {}),
     ...(agentProof ? { agentProof } : {}),
     quote,
     route: {
