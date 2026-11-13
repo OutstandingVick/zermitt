@@ -71,7 +71,11 @@ function WalletInner() {
 
       <h2>History</h2>
       {data.history.length === 0 ? (
-        <p className="muted small">No transfers yet.</p>
+        <p className="muted small">
+          {data.usdcBalance > 0
+            ? "No history on this server. History is kept by the server that handled the transfer; the balance above is read live from NEAR."
+            : "No transfers yet."}
+        </p>
       ) : (
         data.history.map((h) => (
           <div key={h.id} className="card stack-sm">

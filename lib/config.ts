@@ -85,7 +85,7 @@ export function loadConfig(): ZermittConfig {
 /** For scripts that need the relayer even in demo mode (spikes). */
 export function requireRelayer(config: ZermittConfig): { accountId: string; privateKey: string } {
   if (!config.relayerAccountId)
-    fail("RELAYER_ACCOUNT_ID", "Create a testnet account (https://wallet.testnet.near.org or `near account create-account sponsor-by-faucet-service`).");
+    fail("RELAYER_ACCOUNT_ID", "Create a funded testnet account: `npx near-cli-rs account create-account sponsor-by-faucet-service <name>.testnet autogenerate-new-keypair save-to-legacy-keychain network-config testnet create`.");
   if (!config.relayerPrivateKey)
     fail("RELAYER_PRIVATE_KEY", "The ed25519 private key for RELAYER_ACCOUNT_ID.");
   return { accountId: config.relayerAccountId, privateKey: config.relayerPrivateKey };
