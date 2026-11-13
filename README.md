@@ -1,5 +1,7 @@
 # Zermitt
 
+The home page is a seven-section product story built in the **Calabash** design system. See the [landing-page claim audit](docs/LANDING_CLAIMS.md), [image credits](docs/IMAGE_CREDITS.md), and [responsive screenshots](docs/screenshots/).
+
 **Send money home with one sentence.** Type "send $50 to mum". Zermitt quotes
 the route into USDC on NEAR through NEAR Intents and sends a claim link. Mum
 signs in with Google, picks a name like `mama.zermitt.testnet`, and gets the

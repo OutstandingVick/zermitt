@@ -40,7 +40,7 @@ export default function Home() {
           <h2 id="problem-title" className="section-title">Sending $50 home shouldn&apos;t cost $5 or take <em>days</em>.</h2>
         </div>
         <div className="problem-photo-wrap">
-          <Image className="section-photo problem-photo" src="/landing/mum-video-call.jpg" alt="A smiling African woman on a video call at home" width={1200} height={900} sizes="(max-width: 800px) 100vw, 52vw" />
+          <Image className="section-photo problem-photo" src="/landing/mum-video-call.jpg" alt="A smiling African woman on a video call at home" width={1200} height={900} sizes="(max-width: 800px) 100vw, 52vw" loading="eager" />
           <div className="photo-note"><strong>Mama, check your WhatsApp 💛</strong><span>A link is easier than a wallet.</span></div>
         </div>
         <div className="problem-cards">
@@ -68,7 +68,7 @@ export default function Home() {
 
       <section className="landing-section family" aria-labelledby="family-title">
         <div className="family-photo-wrap">
-          <Image className="section-photo family-photo" src="/landing/mum-message.jpg" alt="A mother smiling as she reads a message on her phone" width={1400} height={1000} sizes="(max-width: 800px) 100vw, 58vw" />
+          <Image className="section-photo family-photo" src="/landing/mum-message.jpg" alt="A mother smiling as she reads a message on her phone" width={1400} height={1000} sizes="(max-width: 800px) 100vw, 58vw" loading="eager" />
           <span className="sticker family-sticker">NO SEED PHRASE</span>
         </div>
         <div className="family-copy">
@@ -84,7 +84,7 @@ export default function Home() {
           <HeartPhone className="family-art" />
         </div>
         <div className="aunties-pair">
-          <Image className="section-photo" src="/landing/aunties-laughing.jpg" alt="Family members laughing together at home" width={1000} height={1000} sizes="(max-width: 800px) 100vw, 40vw" />
+          <Image className="section-photo" src="/landing/aunties-laughing.jpg" alt="Family members laughing together at home" width={1000} height={1000} sizes="(max-width: 800px) 100vw, 40vw" loading="eager" />
           <div><span className="mono-index">A LITTLE EASIER</span><strong>For Mama.<br />For Aunty.<br />For home.</strong></div>
         </div>
       </section>
@@ -118,7 +118,7 @@ export default function Home() {
       </section>
 
       <section className="cta" aria-labelledby="cta-title">
-        <Image src="/landing/family-together.jpg" alt="A family enjoying time together at home" fill sizes="100vw" className="cta-photo" />
+        <Image src="/landing/family-together.jpg" alt="A family enjoying time together at home" fill sizes="100vw" className="cta-photo" loading="eager" />
         <div className="cta-shade" aria-hidden="true" />
         <div className="cta-content"><p className="eyebrow">ONE SENTENCE CLOSER</p><h2 id="cta-title">Money home, by <em>sentence</em>.</h2><p>Try the testnet flow. No keys or environment file needed for a quote.</p><div className="action-row"><Link href="/send" className="landing-button landing-button-primary">Try the demo <span aria-hidden="true">↗</span></Link><a href="https://github.com/OutstandingVick/zermitt" className="landing-button landing-button-secondary">View on GitHub</a></div></div>
       </section>
