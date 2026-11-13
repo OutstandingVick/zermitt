@@ -10,7 +10,7 @@ export default function Home() {
         <a href="/send">→ Try the send flow</a>
       </p>
       <p>
-        <strong>Phase 1:</strong> chat-to-send with real quotes and testnet claim links. Swap
+        Send → claim → USDC payout → verifiable on-chain receipt, on NEAR testnet. Swap
         execution is mocked in demo mode — see the README features table.
       </p>
     </main>
