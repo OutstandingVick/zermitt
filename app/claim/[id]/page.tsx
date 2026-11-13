@@ -239,7 +239,7 @@ export default function ClaimPage() {
     <main className="container stack">
       <section className="center stack-sm" style={{ paddingTop: 24 }}>
         <p className="lead">{info.senderName ? `${info.senderName} sent you` : "You've received"}</p>
-        <p className="amount-hero">${Number(info.amountUsd).toFixed(2)}</p>
+        <p className="amount-hero">${Number(info.usdcAmount ?? info.amountUsd).toFixed(2)}</p>
         <p className="small muted" style={{ margin: 0 }}>{info.usdcAmount} USDC (digital dollars) on NEAR</p>
       </section>
       <ClaimFlow info={info} id={id} />

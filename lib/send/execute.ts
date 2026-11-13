@@ -36,7 +36,9 @@ export async function executeSend(
   quote: SendQuote,
   config: ZermittConfig = loadConfig(),
   agentProof?: import("../agent/nearai").AgentProof,
-  senderName?: string
+  senderName?: string,
+  /** Origin of the web request, so claim links match the port the app runs on. */
+  requestOrigin?: string
 ): Promise<SendResult> {
   const relayer = requireRelayer(config);
 
@@ -83,7 +85,7 @@ export async function executeSend(
   const linkFundTxHash = result.transaction.hash as string;
   // Zermitt's own claim page. The private claim key travels in the URL
   // fragment (never sent to the server until the recipient claims).
-  const appUrl = process.env.APP_URL ?? "http://localhost:3000";
+  const appUrl = process.env.APP_URL ?? requestOrigin ?? "http://localhost:3000";
   const claimLink = `${appUrl}/claim/${record.id}#k=${claimKey.toString()}`;
 
   const transfer = updateTransfer(record.id, {

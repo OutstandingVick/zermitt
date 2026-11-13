@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing text/intent/quote" }, { status: 400 });
 
     const config = loadConfig();
-    const result = await executeSend(text, intent, quote, config, agentProof, senderName);
+    const result = await executeSend(text, intent, quote, config, agentProof, senderName, new URL(req.url).origin);
     return NextResponse.json({
       claimLink: result.claimLink,
       linkFundTxUrl: result.linkFundTxUrl,
