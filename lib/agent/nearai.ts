@@ -21,12 +21,15 @@ import type { SendIntent } from "./parse";
 
 export const NEARAI_BASE_URL = process.env.NEARAI_BASE_URL ?? "https://cloud-api.near.ai";
 /**
- * Cheapest model (Nov 2026 catalog) whose /v1/attestation/report returns
- * Intel TDX + NVIDIA evidence bound to a signing address. Proxied models
- * (OpenAI/Anthropic/Google/OpenRouter-routed) return 503 there and can't
- * be attested.
+ * Cheapest model per parse (Nov 2026 catalog) whose /v1/attestation/report
+ * returns Intel TDX + NVIDIA evidence bound to a signing address. Proxied
+ * models (OpenAI/Anthropic/Google/OpenRouter-routed) return 503 there.
+ * z-ai/glm-5.3-flash has a lower list price but always reasons (no off
+ * switch honoured), using 30–90 tokens before answering: pricier per parse
+ * and truncated ~1 in 5 at a 100-token cap. This instruct model answers in
+ * ~20 tokens.
  */
-export const NEARAI_MODEL = process.env.NEARAI_MODEL ?? "z-ai/glm-5.3-flash";
+export const NEARAI_MODEL = process.env.NEARAI_MODEL ?? "Qwen/Qwen3-VL-30B-A3B-Instruct";
 /** Parse output is a ~40-token JSON object; cap spend per request. */
 export const NEARAI_MAX_TOKENS = 100;
 

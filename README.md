@@ -164,12 +164,16 @@ settlement.
 
 With a `NEARAI_API_KEY` (from cloud.near.ai; `AGENT_PROVIDER` defaults to
 `nearai` when it's set), intent parsing runs on NEAR AI Cloud's TEE-hosted
-model **`z-ai/glm-5.3-flash`**, capped at 100 output tokens
-(`https://cloud-api.near.ai`, OpenAI-compatible). It was picked as the
-cheapest model in the catalog whose `/v1/attestation/report` returns Intel
-TDX + NVIDIA evidence bound to a signing address. Proxied models (OpenAI,
-Anthropic, Google, and OpenRouter-routed ones) return 503 from that endpoint
-and can't be attested. Override with `NEARAI_MODEL`. Per request the app
+model **`Qwen/Qwen3-VL-30B-A3B-Instruct`**, capped at 100 output tokens
+(`https://cloud-api.near.ai`, OpenAI-compatible). It is the cheapest model
+per parse (about $0.00003) among those whose `/v1/attestation/report`
+returns Intel TDX + NVIDIA evidence bound to a signing address. Proxied
+models (OpenAI, Anthropic, Google, and OpenRouter-routed ones) return 503
+from that endpoint and can't be attested. `z-ai/glm-5.3-flash` has a lower
+list price, but it always reasons first, so it costs more per parse and its
+answer got cut off in about 1 of 5 runs at the 100-token cap. The two
+committed example receipts were made with it. Override with `NEARAI_MODEL`.
+Per request the app
 collects: the model ID, the ECDSA response signature over
 `sha256(request):sha256(response)` (from `/v1/signature/{chatId}`), and a
 fresh attestation report (`/v1/attestation/report`, random 32-byte nonce);
