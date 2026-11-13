@@ -116,12 +116,35 @@ minted balance it pays out from).
 
 ### Receipts
 
-Every claimed transfer is recorded in the receipts contract at
-**`receipts.zermitt.testnet`** with a sha256 hash of its canonical metadata.
-Verify one with no keys and no `.env`:
+Every claimed transfer is recorded in the receipts contract
+(**`receipts-v2.zermitt.testnet`**; older ones on `receipts.zermitt.testnet`)
+with a sha256 hash of its canonical metadata. Verify one with no keys and no
+`.env`:
 
 ```bash
-pnpm verify:receipt 8caa7d85-c220-49e3-bfec-cfb3e43ffbfc   # example receipt
+pnpm verify:receipt 8caa7d85-c220-49e3-bfec-cfb3e43ffbfc   # standard receipt
+```
+
+A receipt whose parse ran privately in a TEE (works on a fresh clone too):
+
+```bash
+pnpm verify:receipt 871eef42-428c-4552-8f28-0a9d9ad5fe51
+```
+
+Expected output (abridged):
+
+```
+✅ Verified — the on-chain data matches its hash.
+
+🔒 Private agent: model z-ai/glm-5.3-flash, TEE signing key 0x3b753b4406613c5e70ae640508632b600424fa0c
+   attestation hash 84a86e5dad6f92c202692b4e3a88e278a8c072414ab9d97658888097ab519d21
+   TEE bundle source: fixtures/tee/871eef42-428c-4552-8f28-0a9d9ad5fe51.json
+   ✅ signature recovers to signing key
+   ✅ request/response hashes match signed text
+   ✅ attestation bound to request nonce
+   ✅ sha256(report) = on-chain attestation_hash
+   ✅ signing key and model = on-chain fields
+✅ TEE proof verified (raw TDX/NVIDIA quotes not checked — needs vendor attestation services).
 ```
 
 or open `/r/<transfer_id>` (example: `/r/8caa7d85-c220-49e3-bfec-cfb3e43ffbfc`)
@@ -160,19 +183,25 @@ fields are skipped in the canonical hash on both sides.
 **What is verified:** request/response integrity, the ECDSA signature against
 the attested signing key, and attestation freshness (nonce). Anyone can also
 check, with no keys, that the model, attestation hash and signing key on a
-receipt are covered by its on-chain hash (`pnpm verify:receipt`). On the
-receipt page, **Check response signature** repeats the signature check in
-the browser using the signed text and signature that the server stored at
-parse time. A fresh clone doesn't have that stored data, so the check is
-only available on the instance that made the transfer.
+receipt are covered by its on-chain hash (`pnpm verify:receipt`). The
+signature bundle (signed text, signature, nonce, raw attestation report) is
+stored by the instance that made the transfer. Bundles for two demo receipts
+are committed in `fixtures/tee/`, so on a fresh clone both
+`pnpm verify:receipt` and the receipt page's **Check response signature**
+button fall back to them. Either way the check is done against the on-chain
+receipt: signature recovery, nonce binding,
+`sha256(report) == attestation_hash`, and signing key/model == on-chain
+fields. Other receipts made on another instance have no bundle on a fresh
+clone; their on-chain hash still verifies.
 **What is not verified:** the raw Intel TDX / NVIDIA quotes inside the
 report. That needs vendor attestation services (see
 [nearai/nearai-cloud-verifier](https://github.com/nearai/nearai-cloud-verifier)).
 With no `NEARAI_API_KEY`, parsing uses Anthropic or the keyless fallback, and
 receipts say "Agent: standard (not private)".
 
-Example private-agent receipt: `/r/3fc41121-e293-4387-a95c-9e76fef5f72c`
-(`pnpm verify:receipt 3fc41121-e293-4387-a95c-9e76fef5f72c`).
+Example private-agent receipts (bundles committed):
+`/r/3fc41121-e293-4387-a95c-9e76fef5f72c` and
+`/r/871eef42-428c-4552-8f28-0a9d9ad5fe51`.
 
 Receipts are written to **`receipts-v2.zermitt.testnet`** (adds the optional
 agent fields); the page and CLI read v2 and fall back to v1
