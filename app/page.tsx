@@ -103,6 +103,19 @@ export default function Home() {
           <Link href={receiptHref}>Open the real receipt <span aria-hidden="true">↗</span></Link>
         </article>
       </section>
+
+      <section className="landing-section built" aria-labelledby="built-title">
+        <div className="built-heading"><div><p className="eyebrow">THE NEAR PART</p><h2 id="built-title" className="section-title">Built on rails that stay <em>out of the way.</em></h2></div><p>Serious infrastructure, explained in plain words.</p></div>
+        <div className="near-grid">
+          <article><span>01</span><h3>NEAR Intents</h3><p>Live 1Click quotes for USDT or NEAR on NEAR into USDC.</p></article>
+          <article><span>02</span><h3>Named accounts</h3><p>Human names like <code>grace.zermitt.testnet</code>.</p></article>
+          <article><span>03</span><h3>Linkdrop claims</h3><p>A shareable link carries the one-time claim key.</p></article>
+          <article><span>04</span><h3>Gasless delivery</h3><p>The recipient signs no on-chain transaction. The relayer pays.</p></article>
+          <article><span>05</span><h3>NEAR AI Cloud</h3><p>Private parsing in a TEE, with proof attached to the receipt.</p></article>
+        </div>
+        <div className="honest-note"><strong>Testnet demo</strong><span>Swap execution mocked because Intents has no testnet. Quotes use real mainnet pricing.</span></div>
+        <div className="roadmap"><span>ROADMAP</span><ul><li>Cash-out to bank + mobile money</li><li>Virtual card</li><li>Recurring sends</li><li>Key recovery</li></ul></div>
+      </section>
     </main>
   );
 }
