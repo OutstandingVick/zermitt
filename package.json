@@ -2,7 +2,7 @@
   "name": "zermitt",
   "version": "0.1.0",
   "private": true,
-  "description": "AI remittance agent on NEAR — send money with a sentence.",
+  "description": "AI remittance agent on NEAR \u2014 send money with a sentence.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -14,6 +14,7 @@
     "verify:receipt": "tsx scripts/verify-receipt.ts"
   },
   "dependencies": {
+    "@privy-io/react-auth": "3.51.4",
     "ethers": "^6.17.0",
     "near-api-js": "^5.0.1",
     "next": "^15.3.1",

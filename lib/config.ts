@@ -47,7 +47,9 @@ export function loadConfig(): ZermittConfig {
     relayerAccountId: process.env.RELAYER_ACCOUNT_ID,
     relayerPrivateKey: process.env.RELAYER_PRIVATE_KEY,
     oneClickJwt: process.env.ONECLICK_JWT,
-    mockLogin: demoMode && (process.env.MOCK_LOGIN ?? "true") !== "false",
+    // Real Google login (Privy) only outside demo mode and with an app ID;
+    // everything else uses the mocked login so judges need no accounts.
+    mockLogin: demoMode || !process.env.NEXT_PUBLIC_PRIVY_APP_ID,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY,
     nearaiApiKey: process.env.NEARAI_API_KEY,
     agentProvider:

@@ -11,6 +11,7 @@
  */
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { KeyPair } from "near-api-js";
 
 type ClaimInfo = {
@@ -96,7 +97,7 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
         Continue with Google (mock)
       </button>
     ) : (
-      <RealGoogleLogin onEmail={setEmail} />
+      <RealGoogleLogin appId={info.privyAppId} onEmail={setEmail} />
     );
   }
 
@@ -123,23 +124,15 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
   );
 }
 
-/**
- * Real Google login seam. Privy's React SDK currently breaks the Next build
- * (its Solana peer-dependency tree resolves inconsistently), so the real
- * integration is deliberately not shipped yet — see README ("Google
- * sign-in" row) and scripts/spikes/02-social-login.md. The claim flow only
- * needs an email from this component, so swapping in Privy's useLogin here
- * is the entire integration surface.
- */
-function RealGoogleLogin(_props: { onEmail: (e: string) => void }) {
-  return (
-    <div style={box}>
-      <p>
-        Real Google sign-in is not configured in this build. Set{" "}
-        <code>MOCK_LOGIN=true</code> (demo default) to use the mocked path.
-      </p>
-    </div>
-  );
+/** Privy is loaded only when real login is on, so demo mode never ships it. */
+const PrivyGoogleLogin = dynamic(() => import("./privy-login"), {
+  ssr: false,
+  loading: () => <button style={btn} disabled>Loading sign-in…</button>,
+});
+
+function RealGoogleLogin({ appId, onEmail }: { appId?: string | null; onEmail: (e: string) => void }) {
+  if (!appId) return <p style={{ color: "#b00020" }}>Google sign-in is not configured.</p>;
+  return <PrivyGoogleLogin appId={appId} onEmail={onEmail} />;
 }
 
 export default function ClaimPage() {
