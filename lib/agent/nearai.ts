@@ -20,7 +20,15 @@ import { verifyMessage } from "ethers";
 import type { SendIntent } from "./parse";
 
 export const NEARAI_BASE_URL = process.env.NEARAI_BASE_URL ?? "https://cloud-api.near.ai";
-export const NEARAI_MODEL = process.env.NEARAI_MODEL ?? "deepseek-ai/DeepSeek-V3.1";
+/**
+ * Cheapest model (Nov 2026 catalog) whose /v1/attestation/report returns
+ * Intel TDX + NVIDIA evidence bound to a signing address. Proxied models
+ * (OpenAI/Anthropic/Google/OpenRouter-routed) return 503 there and can't
+ * be attested.
+ */
+export const NEARAI_MODEL = process.env.NEARAI_MODEL ?? "z-ai/glm-5.3-flash";
+/** Parse output is a ~40-token JSON object; cap spend per request. */
+export const NEARAI_MAX_TOKENS = 100;
 
 export type AgentProof = {
   provider: "nearai";
@@ -58,7 +66,7 @@ export async function parseIntentNearai(
       { role: "user", content: text },
     ],
     stream: false,
-    max_tokens: 200,
+    max_tokens: NEARAI_MAX_TOKENS,
   });
 
   const res = await fetch(`${NEARAI_BASE_URL}/v1/chat/completions`, {
@@ -126,14 +134,14 @@ export async function collectProof(
   if (!attRes.ok) throw new Error(`attestation fetch failed (${attRes.status})`);
   const reportText = await attRes.text();
   const report = JSON.parse(reportText) as {
-    model_attestations?: Array<{ signing_address?: string }>;
-    signing_address?: string;
+    model_attestations?: Array<{ signing_address?: string; request_nonce?: string }>;
   };
-  const attested =
-    report.signing_address?.toLowerCase() === sig.signing_address.toLowerCase() ||
-    (report.model_attestations ?? []).some(
-      (a) => a.signing_address?.toLowerCase() === sig.signing_address.toLowerCase()
-    );
+  // The signer must appear in a model attestation that echoes our fresh nonce.
+  const attested = (report.model_attestations ?? []).some(
+    (a) =>
+      a.signing_address?.toLowerCase() === sig.signing_address.toLowerCase() &&
+      (a.request_nonce === undefined || a.request_nonce === nonce)
+  );
 
   // Persist the raw report so the receipt page can link to it.
   try {
