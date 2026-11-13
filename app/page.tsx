@@ -33,6 +33,23 @@ export default function Home() {
         </div>
         <MoneyCurrent className="hero-current" />
       </section>
+
+      <section className="landing-section problem" aria-labelledby="problem-title">
+        <div className="section-heading">
+          <p className="eyebrow">THE OLD WAY ASKS TOO MUCH</p>
+          <h2 id="problem-title" className="section-title">Sending $50 home shouldn&apos;t cost $5 or take <em>days</em>.</h2>
+        </div>
+        <div className="problem-photo-wrap">
+          <Image className="section-photo problem-photo" src="/landing/mum-video-call.jpg" alt="A smiling African woman on a video call at home" width={1200} height={900} sizes="(max-width: 800px) 100vw, 52vw" />
+          <div className="photo-note"><strong>Mama, check your WhatsApp 💛</strong><span>A link is easier than a wallet.</span></div>
+        </div>
+        <div className="problem-cards">
+          <article className="problem-card mango-card"><span className="mono-index">01 · FEES</span><strong>Too much disappears on the way.</strong><p>The World Bank estimates an average cost of about 6.2% to send $200.</p></article>
+          <article className="problem-card lilac-card"><span className="mono-index">02 · TIME</span><strong>Days is too long when family needs it now.</strong><p>Traditional transfers often settle in 1–5 business days.</p></article>
+          <article className="problem-card teal-card"><span className="mono-index">03 · CRYPTO</span><strong>A seed phrase is not a family welcome.</strong><p>Wallets and gas put the hardest step on the person receiving.</p></article>
+        </div>
+        <p className="source-note">Estimates: World Bank, <cite>Remittance Prices Worldwide</cite>. Costs vary by route and provider.</p>
+      </section>
     </main>
   );
 }

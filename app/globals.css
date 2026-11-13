@@ -191,3 +191,24 @@ body:has(.landing) .topbar nav { font-weight: 600; }
 @media (max-width: 520px) { .landing-section { padding-inline: 18px; } .mega-title { font-size: clamp(48px, 16vw, 72px); } .action-row { flex-direction: column; } .landing-button { width: 100%; } .hero-visual { min-height: 470px; } .phone-card { width: 142px; min-height: 248px; padding-inline: 12px; border-radius: 25px; } .phone-card strong { font-size: 19px; } .sticker-receipt { inset-inline-end: 0; } }
 @media (hover: hover) { .landing-button:hover { text-decoration: none; } }
 @media (prefers-reduced-motion: reduce) { .landing-button { transition: none; } .landing-button:hover { transform: none; } }
+.problem { background: #fff; display: grid; grid-template-columns: 1.15fr .85fr; gap: clamp(28px, 5vw, 72px); align-items: end; }
+.section-heading { align-self: start; }
+.section-title { margin: 0; max-width: 1060px; font-family: var(--display); font-size: clamp(44px, 6.4vw, 96px); line-height: .96; letter-spacing: -.06em; text-wrap: balance; }
+.section-title em { color: var(--zermitt-teal); }
+.problem .section-heading { grid-column: 1 / -1; }
+.problem-photo-wrap { position: relative; min-height: 650px; }
+.section-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 24px; outline: 1px solid rgb(0 0 0 / 10%); }
+.problem-photo { position: absolute; object-position: 50% 38%; }
+.photo-note { position: absolute; inset-inline-end: -18px; inset-block-end: 28px; max-width: 290px; padding: 22px; display: flex; flex-direction: column; gap: 6px; background: var(--teal-tint); border: 2px solid var(--deep-ink); border-radius: 18px; box-shadow: 5px 5px 0 var(--deep-ink); transform: rotate(2deg); }
+.photo-note strong { font-family: var(--display); font-size: 22px; line-height: 1.1; }
+.photo-note span { font-size: 14px; }
+.problem-cards { display: grid; gap: 16px; }
+.problem-card { padding: clamp(22px, 3vw, 34px); border: 1px solid var(--deep-ink); border-radius: 24px; }
+.problem-card strong { display: block; margin-block: 16px 8px; font-family: var(--display); font-size: clamp(24px, 2.4vw, 34px); line-height: 1.05; letter-spacing: -.03em; }
+.problem-card p { margin: 0; max-width: 45ch; }
+.mono-index { font-family: var(--mono); font-size: 11px; font-weight: 800; letter-spacing: .08em; }
+.mango-card { background: var(--mango-tint); transform: rotate(-1deg); }
+.lilac-card { background: var(--lilac); transform: rotate(1deg); }
+.teal-card { background: var(--teal-tint); transform: rotate(-.5deg); }
+.source-note { grid-column: 1 / -1; margin: 0; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
+@media (max-width: 800px) { .problem { grid-template-columns: 1fr; } .problem-photo-wrap { min-height: 520px; } .photo-note { inset-inline: 16px; } }
