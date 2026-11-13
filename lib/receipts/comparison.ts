@@ -15,8 +15,13 @@ export const COMPARISON = {
   source: "World Bank Remittance Prices Worldwide (global average, ~6.2% on $200)",
 };
 
-export function feeComparison(amountUsd: number, feeUsd: number, seconds: number) {
+/**
+ * `seconds` is optional: receipts don't record a measured settlement time,
+ * so without one the sentence says "in seconds" rather than inventing a number.
+ */
+export function feeComparison(amountUsd: number, feeUsd: number, seconds?: number) {
   const typicalFee = amountUsd * COMPARISON.typicalFeeRate;
+  const speed = seconds === undefined ? "in seconds" : `in ~${seconds}s`;
   return {
     sentUsd: amountUsd,
     feeUsd,
@@ -24,7 +29,7 @@ export function feeComparison(amountUsd: number, feeUsd: number, seconds: number
     typicalFeeUsd: typicalFee,
     typicalDays: COMPARISON.typicalDays,
     sentence:
-      `Sent $${amountUsd.toFixed(2)} for $${feeUsd.toFixed(4)} in ~${seconds}s, ` +
+      `Sent $${amountUsd.toFixed(2)} for $${feeUsd.toFixed(4)} ${speed}, ` +
       `versus about $${typicalFee.toFixed(2)} over ~${COMPARISON.typicalDays} days ` +
       `with a typical bank or remittance service (estimate).`,
   };

@@ -43,6 +43,15 @@ export async function sha256Hex(text: string): Promise<string> {
     .join("");
 }
 
+/** Human label for the quoted origin asset (what the sender spends). */
+function originSymbol(assetId?: string): string {
+  if (!assetId) return "USDT";
+  if (/usdt|tether/i.test(assetId)) return "USDT";
+  if (/wrap\.near/i.test(assetId)) return "NEAR";
+  if (/usdc/i.test(assetId)) return "USDC";
+  return assetId.replace(/^nep141:/, "");
+}
+
 /** Build the on-chain metadata (and hash input) from a claimed transfer. */
 export function buildReceiptMeta(t: TransferRecord): ReceiptMeta {
   const tx = t.transactions;
@@ -51,7 +60,7 @@ export function buildReceiptMeta(t: TransferRecord): ReceiptMeta {
     recipient_account: t.recipientAccountId ?? "",
     amount_usdc: t.quote.amountOut,
     fee_usd: String(t.quote.feeUsd),
-    route_summary: `${t.request.intent.asset}→USDC via NEAR Intents (1Click), claim on NEAR ${t.route.claimNetwork}`,
+    route_summary: `${originSymbol(t.quote?.originAssetId)}→USDC via NEAR Intents (1Click), claim on NEAR ${t.route.claimNetwork}`,
     swap_mode: t.route.swapExecution === "live-mainnet" ? "live" : "mocked",
     tx_hashes: [
       tx.linkFundTxHash,
