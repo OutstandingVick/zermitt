@@ -116,6 +116,19 @@ export default function Home() {
         <div className="honest-note"><strong>Testnet demo</strong><span>Swap execution mocked because Intents has no testnet. Quotes use real mainnet pricing.</span></div>
         <div className="roadmap"><span>ROADMAP</span><ul><li>Cash-out to bank + mobile money</li><li>Virtual card</li><li>Recurring sends</li><li>Key recovery</li></ul></div>
       </section>
+
+      <section className="cta" aria-labelledby="cta-title">
+        <Image src="/landing/family-together.jpg" alt="A family enjoying time together at home" fill sizes="100vw" className="cta-photo" />
+        <div className="cta-shade" aria-hidden="true" />
+        <div className="cta-content"><p className="eyebrow">ONE SENTENCE CLOSER</p><h2 id="cta-title">Money home, by <em>sentence</em>.</h2><p>Try the testnet flow. No keys or environment file needed for a quote.</p><div className="action-row"><Link href="/send" className="landing-button landing-button-primary">Try the demo <span aria-hidden="true">↗</span></Link><a href="https://github.com/OutstandingVick/zermitt" className="landing-button landing-button-secondary">View on GitHub</a></div></div>
+      </section>
+
+      <footer className="landing-footer">
+        <Link href="/" className="footer-brand">Zermitt<span>.</span></Link>
+        <p>Built at <strong>#NEARHackathon</strong></p>
+        <nav aria-label="Footer"><a href="https://github.com/OutstandingVick/zermitt">GitHub</a><a href="https://x.com/zermitt_cash">X · @zermitt_cash</a><Link href="/send">Demo</Link><a href="https://github.com/OutstandingVick/zermitt/blob/main/docs/IMAGE_CREDITS.md">Image credits</a></nav>
+        <small>Testnet money only. Cash-out and card are on the roadmap.</small>
+      </footer>
     </main>
   );
 }
