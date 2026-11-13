@@ -1,9 +1,18 @@
 /* Zermitt design tokens: one accent, one type scale, 4px spacing grid. */
 :root {
+  --sage-paper: #eef2ea;
+  --deep-ink: #0e1a16;
+  --zermitt-teal: #0fb59e;
+  --mango: #ffb43c;
+  --lilac: #d8ccff;
+  --coral: #ff6a55;
+  --forest: #0b2a22;
+  --mango-tint: #ffe7bf;
+  --teal-tint: #d6f3ee;
   --accent: #0f766e;
-  --accent-strong: #115e59;
-  --accent-soft: #e6f4f2;
-  --ink: #111827;
+  --accent-strong: #0b5d54;
+  --accent-soft: #d6f3ee;
+  --ink: #0e1a16;
   --ink-2: #4b5563;
   --ink-3: #6b7280;
   --line: #e5e7eb;
@@ -18,8 +27,10 @@
   --radius: 14px;
   --radius-sm: 10px;
   --shadow: 0 1px 2px rgb(16 24 40 / 6%), 0 4px 16px rgb(16 24 40 / 6%);
-  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --display: var(--font-bricolage), var(--font), sans-serif;
+  --emotional: var(--font-instrument), Georgia, serif;
+  --mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 * { box-sizing: border-box; }
@@ -31,7 +42,11 @@ body {
   color: var(--ink);
   background: var(--page);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+.skip-link { position: fixed; inset-block-start: 8px; inset-inline-start: 8px; z-index: 1000; padding: 10px 14px; background: var(--deep-ink); color: #fff; border-radius: 8px; transform: translateY(-160%); }
+.skip-link:focus { transform: translateY(0); }
 a { color: var(--accent); text-decoration: none; }
 a:hover { text-decoration: underline; }
 code { font-family: var(--mono); font-size: 0.875em; word-break: break-all; }
@@ -41,7 +56,7 @@ code { font-family: var(--mono); font-size: 0.875em; word-break: break-all; }
   display: flex; align-items: center; justify-content: space-between;
   max-width: 480px; margin: 0 auto; padding: 16px 16px 0;
 }
-.brand { font-weight: 700; font-size: 18px; color: var(--ink); letter-spacing: -0.01em; }
+.brand { font-family: var(--display); font-weight: 800; font-size: 18px; color: var(--ink); letter-spacing: -0.03em; }
 .brand span { color: var(--accent); }
 .topbar nav { display: flex; gap: 16px; font-size: 14px; }
 .topbar nav a { color: var(--ink-2); }
