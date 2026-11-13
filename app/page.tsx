@@ -88,6 +88,21 @@ export default function Home() {
           <div><span className="mono-index">A LITTLE EASIER</span><strong>For Mama.<br />For Aunty.<br />For home.</strong></div>
         </div>
       </section>
+
+      <section className="landing-section trust-section" aria-labelledby="trust-title">
+        <div className="trust-copy">
+          <p className="eyebrow">TRUST YOU CAN CHECK</p>
+          <h2 id="trust-title" className="section-title">A receipt that does more than say <em>“trust us.”</em></h2>
+          <p>Each claimed transfer is recorded on NEAR. When NEAR AI Cloud is configured, the agent runs in a secure enclave and the receipt carries proof of which model ran.</p>
+          <div className="trust-badges"><span>✅ Verified on NEAR</span><span>🔒 Ran privately in a TEE</span></div>
+          <div className="verify-snippet"><span>VERIFY IT YOURSELF</span><code>pnpm verify:receipt 2b9f5291-5ed5-40a8-9823-acb6e7611cbf</code></div>
+        </div>
+        <article className="receipt-card" aria-label="Example verified transfer receipt">
+          <div className="receipt-top"><ReceiptSmile className="receipt-art" /><div><small>ZERMITT RECEIPT</small><strong>Victor → Tunde</strong></div></div>
+          <dl><div><dt>REQUEST</dt><dd>send $40 to tunde</dd></div><div><dt>ROUTE</dt><dd>USDT → USDC</dd></div><div><dt>FEE</dt><dd>quote estimate</dd></div><div><dt>TX</dt><dd>8AN4…eK2q</dd></div><div><dt>ATTESTATION</dt><dd>Qwen3-VL · matched</dd></div></dl>
+          <Link href={receiptHref}>Open the real receipt <span aria-hidden="true">↗</span></Link>
+        </article>
+      </section>
     </main>
   );
 }
