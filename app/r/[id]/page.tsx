@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { canonicalJson, sha256Hex, type ReceiptMeta } from "@/lib/receipts/hash";
 import { feeComparison, COMPARISON } from "@/lib/receipts/comparison";
+import { checkTeeBundle, type TeeBundle, type TeeCheck } from "@/lib/receipts/tee";
 
 const CONTRACTS = [
   process.env.NEXT_PUBLIC_RECEIPTS_CONTRACT ?? "receipts-v2.zermitt.testnet",
@@ -60,6 +61,7 @@ export default function ReceiptPage() {
   const [found, setFound] = useState<{ receipt: OnChainReceipt; contract: string } | "loading" | "pending">("loading");
   const [verify, setVerify] = useState<"idle" | "ok" | "bad">("idle");
   const [sigCheck, setSigCheck] = useState<"idle" | "ok" | "bad" | "unavailable">("idle");
+  const [sigDetail, setSigDetail] = useState<{ source: string; check: TeeCheck } | null>(null);
 
   useEffect(() => {
     fetchReceipt(id)
@@ -68,20 +70,17 @@ export default function ReceiptPage() {
   }, [id]);
 
   async function runSigCheck() {
-    // Check the TEE response signature in the browser: fetch the signed text
-    // and signature kept by the app, recover the ECDSA signer, and compare
-    // with the signing key committed to on-chain.
+    // Check the TEE bundle in the browser against the ON-CHAIN receipt:
+    // signature recovery, nonce binding, report hash == attestation_hash,
+    // and signing key/model == on-chain fields. The server only supplies data.
+    if (found === "loading" || found === "pending") return;
     try {
       const res = await fetch(`/api/receipt-proof/${id}`);
       if (!res.ok) return setSigCheck("unavailable");
-      const p = (await res.json()) as { signedText: string; signature: string; signingKey: string };
-      const { verifyMessage } = await import("ethers");
-      const ok =
-        found !== "loading" &&
-        found !== "pending" &&
-        verifyMessage(p.signedText, p.signature).toLowerCase() === p.signingKey.toLowerCase() &&
-        p.signingKey.toLowerCase() === (found.receipt.meta.signing_key ?? "").toLowerCase();
-      setSigCheck(ok ? "ok" : "bad");
+      const { source, bundle } = (await res.json()) as { source: string; bundle: TeeBundle };
+      const check = await checkTeeBundle(bundle, found.receipt.meta);
+      setSigDetail({ source, check });
+      setSigCheck(check.ok ? "ok" : "bad");
     } catch {
       setSigCheck("bad");
     }
@@ -151,8 +150,18 @@ export default function ReceiptPage() {
               Check response signature
             </button>
             {sigCheck === "ok" && <p style={{ color: "#0a7d2e" }}>✅ Signature recovers to the attested signing key.</p>}
-            {sigCheck === "bad" && <p style={{ color: "#b00020" }}>❌ Signature does not match the attested key.</p>}
+            {sigCheck === "bad" && <p style={{ color: "#b00020" }}>❌ TEE proof does not match this receipt.</p>}
             {sigCheck === "unavailable" && <p style={{ color: "#777" }}>Signature material not available from this server.</p>}
+            {sigDetail && (
+              <ul style={{ fontSize: 13, color: "#555", margin: "4px 0 0", paddingLeft: 18 }}>
+                <li>{sigDetail.check.signatureRecovers ? "✅" : "❌"} signature recovers to signing key</li>
+                <li>{sigDetail.check.hashesMatchSignedText ? "✅" : "❌"} request/response hashes match signed text</li>
+                <li>{sigDetail.check.nonceBound ? "✅" : "❌"} attestation bound to request nonce</li>
+                <li>{sigDetail.check.reportHashMatchesChain ? "✅" : "❌"} sha256(report) = on-chain attestation_hash</li>
+                <li>{sigDetail.check.keyAndModelMatchChain ? "✅" : "❌"} signing key and model = on-chain fields</li>
+                <li>bundle source: {sigDetail.source === "fixture" ? "committed fixture" : "this server's data"}</li>
+              </ul>
+            )}
           </div>
         ) : (
           <p style={{ color: "#777", fontSize: 14 }}>Agent: standard (not private)</p>

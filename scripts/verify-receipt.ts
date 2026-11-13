@@ -4,7 +4,9 @@
  * public RPC view call, recomputes the sha256 over the canonical JSON of
  * the on-chain metadata, and compares it with the on-chain hash.
  */
-import { canonicalJson, sha256Hex } from "../lib/receipts/hash";
+import { canonicalJson, sha256Hex, type ReceiptMeta } from "../lib/receipts/hash";
+import { checkTeeBundle } from "../lib/receipts/tee";
+import { loadTeeBundle } from "../lib/receipts/bundle-source";
 
 const CONTRACTS = [
   process.env.RECEIPTS_CONTRACT ?? "receipts-v2.zermitt.testnet",
@@ -63,13 +65,30 @@ async function main() {
   }
 
   if (receipt.meta.agent_provider === "nearai") {
+    const meta = receipt.meta as unknown as ReceiptMeta;
     console.log(
-      `\n🔒 Private agent: model ${receipt.meta.model}, TEE signing key ${receipt.meta.signing_key}` +
-        `\n   attestation hash ${receipt.meta.attestation_hash}` +
-        `\n   These fields are covered by the verified receipt hash above. Checking the` +
-        `\n   response signature and the raw TDX/NVIDIA quotes needs the NEAR AI Cloud` +
-        `\n   signature endpoint (API key) and vendor attestation services — see README.`
+      `\n🔒 Private agent: model ${meta.model}, TEE signing key ${meta.signing_key}` +
+        `\n   attestation hash ${meta.attestation_hash}`
     );
+    const found = loadTeeBundle(id);
+    if (!found) {
+      console.log("   No TEE bundle (local data or fixtures/tee/) for this receipt — signature not checked.");
+      return;
+    }
+    const c = await checkTeeBundle(found.bundle, meta);
+    const mark = (b: boolean) => (b ? "✅" : "❌");
+    console.log(`   TEE bundle source: ${found.source === "fixture" ? `fixtures/tee/${id}.json` : "local data"}`);
+    console.log(`   ${mark(c.signatureRecovers)} signature recovers to signing key`);
+    console.log(`   ${mark(c.hashesMatchSignedText)} request/response hashes match signed text`);
+    console.log(`   ${mark(c.nonceBound)} attestation bound to request nonce`);
+    console.log(`   ${mark(c.reportHashMatchesChain)} sha256(report) = on-chain attestation_hash`);
+    console.log(`   ${mark(c.keyAndModelMatchChain)} signing key and model = on-chain fields`);
+    console.log(
+      c.ok
+        ? "✅ TEE proof verified (raw TDX/NVIDIA quotes not checked — needs vendor attestation services)."
+        : "❌ TEE proof does not match this receipt."
+    );
+    if (!c.ok) process.exit(1);
   } else {
     console.log("\nAgent: standard (not private) — no TEE fields on this receipt.");
   }
