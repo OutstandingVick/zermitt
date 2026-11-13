@@ -10,12 +10,12 @@ crypto. Zermitt makes the sender side one sentence and the recipient side one
 Google login, with a public receipt for every transfer.
 
 **Hackathon tracks:** Payments & Remittances · Privacy & Private AI
-(NEAR AI Cloud TEE agent, flagged — see the features table).
+(NEAR AI Cloud TEE agent with attested, signed parses — see below).
 
-> **Status: Phase 1.** Chat-to-send works end to end in demo mode: sentence →
-> real quote → confirm → real testnet claim link. The Intents swap execution
-> is **mocked in DEMO_MODE** (Intents has no testnet) and clearly labeled;
-> quotes are real mainnet pricing. The features table below is exact.
+> **Status:** send → claim → USDC payout → on-chain receipt works end to end
+> on testnet. The Intents swap execution is **mocked in DEMO_MODE** (Intents
+> has no testnet) and clearly labeled; quotes are real mainnet pricing.
+> Google login is mocked. The features table below is exact.
 
 ## Quick start
 
@@ -28,8 +28,9 @@ pnpm dev               # http://localhost:3000
 Other commands:
 
 ```bash
-pnpm test              # vitest sanity tests
-pnpm demo:e2e          # end-to-end skeleton (prints TODO steps, exits 0)
+pnpm test              # vitest: parsing, names, claim states, receipt hashing
+pnpm demo:e2e          # full flow on testnet (needs RELAYER_* in .env)
+pnpm verify:receipt <transfer_id>   # keyless on-chain receipt check
 pnpm spike:intents     # real 1Click dry quote → USDC on NEAR (no funds needed)
 pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .env)
 ```
@@ -38,7 +39,7 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 
 | Feature | Status |
 | --- | --- |
-| Chat-to-send ("send $50 to mum") | ✅ (LLM with ANTHROPIC_API_KEY, deterministic fallback without) |
+| Chat-to-send ("send $50 to mum") | ✅ (private LLM with NEARAI_API_KEY, Anthropic with ANTHROPIC_API_KEY, deterministic fallback with no keys) |
 | Any-asset routing (NEAR Intents) | ✅ live quotes · 🧪 execution mocked in DEMO_MODE (`LIVE_INTENTS=true` for a real mainnet swap) |
 | Quote and confirm before sending | ✅ |
 | Claim links | ✅ created and claimed on testnet |
@@ -47,9 +48,9 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 | Gasless claims | ✅ recipient signs nothing on-chain; relayer pays every step (see below) |
 | Dollar balance | ✅ `/wallet` — USDC balance + received history with tx links |
 | Receipt page | ✅ `/r/[id]` reads from the contract and verifies the hash in the browser |
-| On-chain receipt contract | ✅ `receipts.zermitt.testnet` (Rust, near-sdk; wasm committed) |
+| On-chain receipt contract | ✅ `receipts-v2.zermitt.testnet` (v1 `receipts.zermitt.testnet` still read for older receipts; Rust, near-sdk; wasm committed) |
 | Fee comparison | ✅ estimates, source cited below |
-| Private agent (NEAR AI Cloud attestation) | 🗺️ code complete behind `AGENT_PROVIDER=nearai`; reaches the live API but **not verified end-to-end** (account awaiting credits; a parse without them falls back gracefully) — see "Private agent" below |
+| Private agent (NEAR AI Cloud attestation) | ✅ with `NEARAI_API_KEY`: parse runs in a TEE, response signature verified against the attested key, proof committed to the receipt. Full TDX/NVIDIA quote verification is not done here — see "Private agent" below |
 
 ## Spike findings (Phase 0)
 
@@ -136,27 +137,42 @@ file (`lib/receipts/comparison.ts`), based on the World Bank's
 global average (~6.2% to send $200) and typical 1–5 business-day bank
 settlement.
 
-### Private agent (NEAR AI Cloud) — flagged, off by default
+### Private agent (NEAR AI Cloud)
 
-With `AGENT_PROVIDER=nearai` and a `NEARAI_API_KEY` (from cloud.near.ai),
-intent parsing runs on NEAR AI Cloud's TEE-hosted models
-(`https://cloud-api.near.ai`, OpenAI-compatible). Per request the app
+With a `NEARAI_API_KEY` (from cloud.near.ai; `AGENT_PROVIDER` defaults to
+`nearai` when it's set), intent parsing runs on NEAR AI Cloud's TEE-hosted
+model **`z-ai/glm-5.3-flash`**, capped at 100 output tokens
+(`https://cloud-api.near.ai`, OpenAI-compatible). It was picked as the
+cheapest model in the catalog whose `/v1/attestation/report` returns Intel
+TDX + NVIDIA evidence bound to a signing address. Proxied models (OpenAI,
+Anthropic, Google, and OpenRouter-routed ones) return 503 from that endpoint
+and can't be attested. Override with `NEARAI_MODEL`. Per request the app
 collects: the model ID, the ECDSA response signature over
 `sha256(request):sha256(response)` (from `/v1/signature/{chatId}`), and a
 fresh attestation report (`/v1/attestation/report`, random 32-byte nonce);
-it verifies locally that the hashes match and the signature recovers to the
-attested signing key, then commits `agent_provider`, `model`,
+it verifies locally that the hashes match, the signature recovers to the
+signing address in the attestation, and the attestation echoes our nonce,
+then commits `agent_provider`, `model`,
 `attestation_hash` (sha256 of the report) and `signing_key` into the
 on-chain receipt. Old receipts without these fields still verify — absent
 fields are skipped in the canonical hash on both sides.
 
-**What is verified:** request/response integrity and the signature against
-the attested key. **What is not:** the raw Intel TDX / NVIDIA quotes — that
-needs vendor attestation services (see
+**What is verified:** request/response integrity, the ECDSA signature against
+the attested signing key, and attestation freshness (nonce). Anyone can also
+check, with no keys, that the model, attestation hash and signing key on a
+receipt are covered by its on-chain hash (`pnpm verify:receipt`). On the
+receipt page, **Check response signature** repeats the signature check in
+the browser using the signed text and signature that the server stored at
+parse time. A fresh clone doesn't have that stored data, so the check is
+only available on the instance that made the transfer.
+**What is not verified:** the raw Intel TDX / NVIDIA quotes inside the
+report. That needs vendor attestation services (see
 [nearai/nearai-cloud-verifier](https://github.com/nearai/nearai-cloud-verifier)).
-This feature is 🗺️ because it has not been exercised against the live
-service (no API key at build time); without the flag, parsing uses
-Anthropic or the keyless fallback, and receipts say "standard (not private)".
+With no `NEARAI_API_KEY`, parsing uses Anthropic or the keyless fallback, and
+receipts say "Agent: standard (not private)".
+
+Example private-agent receipt: `/r/3fc41121-e293-4387-a95c-9e76fef5f72c`
+(`pnpm verify:receipt 3fc41121-e293-4387-a95c-9e76fef5f72c`).
 
 Receipts are written to **`receipts-v2.zermitt.testnet`** (adds the optional
 agent fields); the page and CLI read v2 and fall back to v1
