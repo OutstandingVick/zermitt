@@ -236,3 +236,23 @@ body:has(.landing) .topbar nav { font-weight: 600; }
 .examples p { margin: 12px 0 0; font-family: var(--display); font-size: 20px; line-height: 1.15; }
 .how-plane { display: block; width: min(220px, 46vw); margin: 30px auto -80px; transform: rotate(4deg); }
 @media (max-width: 800px) { .how-grid, .examples { grid-template-columns: 1fr; } .how-card { min-height: 390px; } .how-card:nth-child(2) { transform: none; } }
+.family { background: var(--mango-tint); display: grid; grid-template-columns: 1.12fr .88fr; gap: clamp(34px, 6vw, 90px); align-items: center; }
+.family-photo-wrap { position: relative; min-height: min(760px, 70vw); }
+.family-photo { position: absolute; object-position: 52% center; }
+.family-sticker { inset-block-start: 5%; inset-inline-end: -4%; background: var(--lilac); transform: rotate(5deg); }
+.family-copy { position: relative; padding: clamp(30px, 5vw, 70px); border-radius: 32px; background: var(--lilac); overflow: hidden; }
+.family-title { margin: 0; font-family: var(--display); font-size: clamp(46px, 5.8vw, 84px); line-height: .91; letter-spacing: -.06em; }
+.family-title em { font-family: var(--emotional); font-weight: 400; color: var(--coral); }
+.family-lead { margin: 28px 0; max-width: 28ch; font-family: var(--display); font-size: 24px; line-height: 1.15; }
+.claim-steps { margin: 0; padding: 0; display: grid; gap: 0; list-style: none; }
+.claim-steps li { padding-block: 16px; display: grid; grid-template-columns: 42px 1fr; gap: 12px; border-block-start: 1px solid rgb(14 26 22 / 35%); }
+.claim-steps li > span { font-family: var(--mono); font-size: 11px; }
+.claim-steps div { display: grid; gap: 2px; }
+.claim-steps strong { font-family: var(--display); font-size: 19px; }
+.claim-steps small { font-size: 13px; }
+.family-art { position: absolute; width: 145px; inset-inline-end: -18px; inset-block-end: -16px; opacity: .22; transform: rotate(8deg); }
+.aunties-pair { grid-column: 1 / -1; display: grid; grid-template-columns: 1.1fr .9fr; min-height: 520px; }
+.aunties-pair img { border-start-end-radius: 0; border-end-end-radius: 0; }
+.aunties-pair > div { padding: clamp(34px, 6vw, 90px); display: flex; flex-direction: column; justify-content: center; gap: 24px; background: var(--teal-tint); border-radius: 0 24px 24px 0; }
+.aunties-pair strong { font-family: var(--display); font-size: clamp(42px, 5vw, 74px); line-height: .93; letter-spacing: -.05em; }
+@media (max-width: 800px) { .family { grid-template-columns: 1fr; } .family-photo-wrap { min-height: 600px; } .family-sticker { inset-inline-end: 1%; } .aunties-pair { grid-template-columns: 1fr; min-height: auto; } .aunties-pair img { max-height: 520px; border-radius: 24px 24px 0 0; } .aunties-pair > div { border-radius: 0 0 24px 24px; } }

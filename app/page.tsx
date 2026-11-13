@@ -65,6 +65,29 @@ export default function Home() {
         </div>
         <DollarPlane className="how-plane" />
       </section>
+
+      <section className="landing-section family" aria-labelledby="family-title">
+        <div className="family-photo-wrap">
+          <Image className="section-photo family-photo" src="/landing/mum-message.jpg" alt="A mother smiling as she reads a message on her phone" width={1400} height={1000} sizes="(max-width: 800px) 100vw, 58vw" />
+          <span className="sticker family-sticker">NO SEED PHRASE</span>
+        </div>
+        <div className="family-copy">
+          <p className="eyebrow">FOR THE FAMILY</p>
+          <h2 id="family-title" className="family-title">No app.<br />No seed phrase.<br />No <em>gas</em>.</h2>
+          <p className="family-lead">She doesn&apos;t need to know what a blockchain is.</p>
+          <ol className="claim-steps">
+            <li><span>01</span><div><strong>A WhatsApp link</strong><small>Open it. Nothing to install.</small></div></li>
+            <li><span>02</span><div><strong>Google sign-in</strong><small>Familiar, quick and identity-only.</small></div></li>
+            <li><span>03</span><div><strong>Her own named account</strong><small><code>grace.zermitt.testnet</code></small></div></li>
+            <li><span>04</span><div><strong>Test USDC lands there</strong><small>Zermitt&apos;s relayer pays the gas.</small></div></li>
+          </ol>
+          <HeartPhone className="family-art" />
+        </div>
+        <div className="aunties-pair">
+          <Image className="section-photo" src="/landing/aunties-laughing.jpg" alt="Family members laughing together at home" width={1000} height={1000} sizes="(max-width: 800px) 100vw, 40vw" />
+          <div><span className="mono-index">A LITTLE EASIER</span><strong>For Mama.<br />For Aunty.<br />For home.</strong></div>
+        </div>
+      </section>
     </main>
   );
 }
