@@ -44,6 +44,8 @@ export type AgentProof = {
   /** Hashes matched and the signature recovered to the attested key. */
   verified: boolean;
   checkedAt: string;
+  /** Random nonce sent with the attestation request (freshness). */
+  nonce?: string;
 };
 
 const sha256 = (s: string) => createHash("sha256").update(s).digest("hex");
@@ -164,5 +166,6 @@ export async function collectProof(
     signedText: sig.text,
     verified: hashesMatch && signatureValid && attested,
     checkedAt: new Date().toISOString(),
+    nonce,
   };
 }
