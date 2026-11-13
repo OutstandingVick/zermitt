@@ -212,3 +212,27 @@ body:has(.landing) .topbar nav { font-weight: 600; }
 .teal-card { background: var(--teal-tint); transform: rotate(-.5deg); }
 .source-note { grid-column: 1 / -1; margin: 0; font-family: var(--mono); font-size: 11px; color: var(--ink-2); }
 @media (max-width: 800px) { .problem { grid-template-columns: 1fr; } .problem-photo-wrap { min-height: 520px; } .photo-note { inset-inline: 16px; } }
+.how { background: var(--sage-paper); }
+.how-heading { max-width: 1120px; margin-inline: auto; text-align: center; }
+.how-heading .section-title { margin-inline: auto; }
+.how-grid { max-width: 1320px; margin: 64px auto 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; list-style: none; }
+.how-card { min-width: 0; min-height: 460px; padding: clamp(24px, 3vw, 38px); display: flex; flex-direction: column; border: 2px solid var(--deep-ink); border-radius: 28px; background: #fff; box-shadow: 7px 7px 0 var(--deep-ink); }
+.how-card:nth-child(2) { background: var(--mango-tint); transform: translateY(20px); }
+.how-card:nth-child(3) { background: var(--teal-tint); }
+.step-pill { align-self: flex-start; padding: 7px 10px; border-radius: 999px; background: var(--deep-ink); color: #fff; font-family: var(--mono); font-size: 11px; font-weight: 700; }
+.how-card h3 { margin: 36px 0 10px; font-family: var(--display); font-size: clamp(28px, 3vw, 42px); line-height: 1; letter-spacing: -.04em; }
+.how-card > p { margin: 0; max-width: 32ch; }
+.mini-chat, .mini-quote, .mini-whatsapp { margin-block-start: auto; border: 1px solid var(--deep-ink); background: #fff; }
+.mini-chat { padding: 16px; display: flex; justify-content: space-between; align-items: center; border-radius: 18px 18px 4px 18px; }
+.mini-chat i { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--zermitt-teal); font-style: normal; }
+.mini-quote { padding: 20px; display: grid; gap: 6px; border-radius: 18px; }
+.mini-quote small, .mini-whatsapp small { font-family: var(--mono); font-size: 10px; }
+.mini-quote strong { font-family: var(--display); font-size: 27px; }
+.mini-whatsapp { padding: 20px; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; border-radius: 18px; }
+.mini-whatsapp > span { grid-row: 1 / 3; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--lilac); color: var(--coral); }
+.examples { max-width: 1160px; margin: 70px auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.examples article { padding: 22px; border-block-start: 1px solid var(--deep-ink); }
+.examples span { font-family: var(--mono); font-size: 10px; font-weight: 800; letter-spacing: .1em; }
+.examples p { margin: 12px 0 0; font-family: var(--display); font-size: 20px; line-height: 1.15; }
+.how-plane { display: block; width: min(220px, 46vw); margin: 30px auto -80px; transform: rotate(4deg); }
+@media (max-width: 800px) { .how-grid, .examples { grid-template-columns: 1fr; } .how-card { min-height: 390px; } .how-card:nth-child(2) { transform: none; } }

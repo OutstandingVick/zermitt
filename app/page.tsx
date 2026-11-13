@@ -50,6 +50,21 @@ export default function Home() {
         </div>
         <p className="source-note">Estimates: World Bank, <cite>Remittance Prices Worldwide</cite>. Costs vary by route and provider.</p>
       </section>
+
+      <section className="landing-section how" aria-labelledby="how-title">
+        <div className="section-heading how-heading"><p className="eyebrow">THREE SMALL STEPS</p><h2 id="how-title" className="section-title">Type it. Send it. They <em>claim</em> it.</h2></div>
+        <ol className="how-grid">
+          <li className="how-card"><span className="step-pill">STEP 01 · TYPE</span><h3>Say it naturally.</h3><p>“Send $40 to Mum for groceries.”</p><div className="mini-chat"><span>Send $40 to Mum</span><i aria-hidden="true">↗</i></div></li>
+          <li className="how-card"><span className="step-pill">STEP 02 · SEND</span><h3>Check the quote.</h3><p>See the route, fee and estimated arrival before you confirm.</p><div className="mini-quote"><small>YOU SEND</small><strong>40.00 USDT</strong><span>→ 39.76 USDC</span></div></li>
+          <li className="how-card"><span className="step-pill">STEP 03 · CLAIM</span><h3>Share one link.</h3><p>They open WhatsApp, sign in with Google and choose a name.</p><div className="mini-whatsapp"><span aria-hidden="true">♥</span><strong>Mama, your $40 is ready.</strong><small>Claim with Zermitt →</small></div></li>
+        </ol>
+        <div className="examples" aria-label="Illustrative examples">
+          <article><span>EXAMPLE</span><p>Tunde sends $40 to his mum for groceries every month.</p></article>
+          <article><span>EXAMPLE</span><p>Ada sends NEAR; Aunty receives test USDC in her named account.</p></article>
+          <article><span>EXAMPLE</span><p>Victor shares a claim link, then checks the receipt on NEAR.</p></article>
+        </div>
+        <DollarPlane className="how-plane" />
+      </section>
     </main>
   );
 }
