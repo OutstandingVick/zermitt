@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { loadConfig } from "@/lib/config";
 import { claimState, getTransfer } from "@/lib/transfers/store";
-import { suggestName } from "@/lib/near/names";
+import { PARENT_ACCOUNT, suggestName } from "@/lib/near/names";
 import { ClaimError, executeClaim } from "@/lib/claim/execute";
 
 type Params = { params: Promise<{ id: string }> };
@@ -19,6 +19,7 @@ export async function GET(_req: Request, { params }: Params) {
     usdcAmount: record.quote.amountOutFormatted,
     senderNote: record.request.intent.recipient,
     senderName: record.senderName ?? null,
+    parentAccount: PARENT_ACCOUNT,
     suggestedName: suggestName(record.request.intent.recipient),
     recipientAccountId: record.recipientAccountId,
     mockLogin: config.mockLogin,

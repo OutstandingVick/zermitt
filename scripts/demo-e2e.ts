@@ -1,37 +1,63 @@
 /**
  * End-to-end demo: parse → quote → send → claim → receipt.
  *
- * Phase 1: parse, quote, and send (claim-link creation) are REAL.
- * The Intents swap execution is MOCKED in DEMO_MODE (Intents has no
- * testnet) and clearly labeled; the quote itself is real mainnet pricing.
- * Claim and receipt are still TODO (Phases 2–3).
+ * With RELAYER_ACCOUNT_ID / RELAYER_PRIVATE_KEY (a funded testnet account
+ * that owns zermitt.testnet), every step runs for real on testnet. The
+ * Intents swap execution is MOCKED in DEMO_MODE (Intents has no testnet)
+ * and labeled; the quote is real mainnet pricing.
  *
- * Requires RELAYER_ACCOUNT_ID / RELAYER_PRIVATE_KEY in .env (funded
- * testnet account) — documented in .env.example.
+ * Without relayer keys (a fresh clone, no .env), it runs keyless: parse and
+ * the real quote run, the on-chain send/claim steps are skipped with a
+ * clear message, and a committed demo receipt is verified on-chain instead.
+ *
+ * Optional env: DEMO_TEXT, SENDER_NAME, CLAIM_NAME.
  */
 import { KeyPair } from "near-api-js";
-import { loadConfig, requireRelayer } from "../lib/config";
+import { loadConfig } from "../lib/config";
 import { getSendQuote } from "../lib/intents/quote";
-import { executeSend } from "../lib/send/execute";
-import { executeClaim, accountExists } from "../lib/claim/execute";
-import { suggestName } from "../lib/near/names";
+import { PARENT_ACCOUNT, suggestName } from "../lib/near/names";
 import { connectNear } from "../lib/near/client";
+import { readReceipt, RECEIPTS_CONTRACT } from "../lib/receipts/record";
+import { canonicalJson, sha256Hex, type ReceiptMeta } from "../lib/receipts/hash";
+import { checkTeeBundle } from "../lib/receipts/tee";
+import { loadTeeBundle } from "../lib/receipts/bundle-source";
+
+/** Committed demo receipt (Victor → tunde) used in keyless mode. */
+const DEMO_RECEIPT_ID = "2b9f5291-5ed5-40a8-9823-acb6e7611cbf";
+
+async function verifyReceipt(id: string, nodeUrl: string): Promise<void> {
+  const onChain = await readReceipt(id, nodeUrl);
+  if (!onChain) throw new Error(`Receipt ${id} not found on-chain.`);
+  const recomputed = await sha256Hex(canonicalJson(onChain.meta));
+  if (recomputed !== onChain.receipt_hash) throw new Error("Receipt hash mismatch!");
+  console.log(`   ✅ receipt verified on-chain (${RECEIPTS_CONTRACT}): $${(Number(onChain.meta.amount_usdc) / 1e6).toFixed(2)} → ${onChain.meta.recipient_account}`);
+  const meta = onChain.meta as ReceiptMeta;
+  if (meta.agent_provider === "nearai") {
+    const found = loadTeeBundle(id);
+    if (found) {
+      const c = await checkTeeBundle(found.bundle, meta);
+      console.log(`   ${c.ok ? "✅" : "❌"} TEE proof (${meta.model}): signature, nonce, report hash and key all match the chain`);
+    }
+  }
+}
 
 async function main() {
   const config = loadConfig();
-  console.log(`Zermitt demo (DEMO_MODE=${config.demoMode}, network=${config.networkId})\n`);
+  const keyless = !config.relayerAccountId || !config.relayerPrivateKey;
+  console.log(
+    `Zermitt demo (DEMO_MODE=${config.demoMode}, network=${config.networkId}` +
+      `${keyless ? ", keyless: no RELAYER_* set" : ""})\n`
+  );
 
-  // Relayer balance warning.
-  const relayer = requireRelayer(config);
   const near = await connectNear(config);
-  const relayerBalance =
-    Number((await (await near.account(relayer.accountId)).state()).amount.toString()) / 1e24;
-  if (relayerBalance < 5)
-    console.warn(
-      `⚠️  Relayer ${relayer.accountId} holds only ${relayerBalance.toFixed(2)} NEAR — top it up (each claim link needs 1.5).\n`
-    );
+  if (!keyless) {
+    const balance = Number((await (await near.account(config.relayerAccountId!)).state()).amount.toString()) / 1e24;
+    if (balance < 5)
+      console.warn(`⚠️  Relayer ${config.relayerAccountId} holds only ${balance.toFixed(2)} NEAR — top it up (each claim link needs 1.5).\n`);
+  }
 
-  const text = "send $5 to mum";
+  const text = process.env.DEMO_TEXT ?? "send $5 to mum";
+  const senderName = process.env.SENDER_NAME ?? "Victor";
   console.log(`1. parse   "${text}" (provider: ${config.agentProvider})`);
   const { parseIntentWithProof } = await import("../lib/agent/parse");
   const { intent, proof } = await parseIntentWithProof(text, config);
@@ -47,30 +73,37 @@ async function main() {
   console.log();
 
   console.log("2. quote   real 1Click dry quote (mainnet pricing)");
-  const quote = await getSendQuote("USDT", intent.amount, config.oneClickJwt);
+  const origin = intent.asset === "NEAR" ? "NEAR" : "USDT";
+  const quote = await getSendQuote(origin, intent.amount, config.oneClickJwt);
   console.log(
-    `   → ${quote.amountInFormatted} USDT → ${quote.amountOutFormatted} USDC on NEAR` +
+    `   → ${quote.amountInFormatted} ${origin} → ${quote.amountOutFormatted} USDC on NEAR` +
       ` (fee ~$${quote.feeUsd.toFixed(4)}, ~${quote.timeEstimateSec}s)\n`
   );
 
+  if (keyless) {
+    console.log("3. send    skipped: funding a claim link needs RELAYER_ACCOUNT_ID/RELAYER_PRIVATE_KEY (see .env.example)");
+    console.log("4. claim   skipped: same reason\n");
+    console.log(`5. receipt verifying a committed demo receipt instead (${DEMO_RECEIPT_ID})`);
+    await verifyReceipt(DEMO_RECEIPT_ID, config.nodeUrl);
+    console.log(`\nKeyless run complete. Add RELAYER_* to .env to run send and claim on testnet.`);
+    return;
+  }
+
+  const { executeSend } = await import("../lib/send/execute");
+  const { executeClaim, accountExists } = await import("../lib/claim/execute");
+
   console.log("3. send    swap + fund claim link");
-  const result = await executeSend(text, intent, quote, config, proof);
+  const result = await executeSend(text, intent, quote, config, proof, senderName);
   console.log(`   swap: ${result.swapNote}`);
   console.log(`   link funded on testnet: ${result.linkFundTxUrl}`);
   console.log(`   claim link: ${result.claimLink}\n`);
 
-  console.log("4. claim   mocked Google login → named account → gasless claim + USDC payout");
+  console.log("4. claim   simulated Google login → named account → gasless claim + USDC payout");
   const claimKey = new URL(result.claimLink).hash.replace(/^#k=/, "");
-  let name = suggestName(intent.recipient);
-  if (await accountExists(config, `${name}.zermitt.testnet`)) name = `${name}-${Date.now() % 100000}`;
-  const recipientKey = KeyPair.fromRandom("ed25519"); // generated client-side in the real flow
-  const claim = await executeClaim(
-    result.transfer.id,
-    name,
-    recipientKey.getPublicKey().toString(),
-    claimKey,
-    config
-  );
+  let name = process.env.CLAIM_NAME ?? suggestName(intent.recipient);
+  if (await accountExists(config, `${name}.${PARENT_ACCOUNT}`)) name = `${name}-${Date.now() % 100000}`;
+  const recipientKey = KeyPair.fromRandom("ed25519"); // generated in the browser in the real flow
+  const claim = await executeClaim(result.transfer.id, name, recipientKey.getPublicKey().toString(), claimKey, config);
   console.log(`   new account: ${claim.accountId} (recipient signed nothing on-chain)`);
   console.log(`   create account tx:  ${claim.txUrls.create}`);
   console.log(`   linkdrop claim tx:  ${claim.txUrls.claim}`);
@@ -86,13 +119,7 @@ async function main() {
   console.log(`   USDC balance of ${claim.accountId}: ${Number(usdcRaw) / 1e6}\n`);
 
   console.log("5. receipt read back from the contract and verified");
-  const { readReceipt, RECEIPTS_CONTRACT } = await import("../lib/receipts/record");
-  const { canonicalJson, sha256Hex } = await import("../lib/receipts/hash");
-  const onChain = await readReceipt(result.transfer.id, config.nodeUrl);
-  if (!onChain) throw new Error("Receipt not found on-chain after claim.");
-  const recomputed = await sha256Hex(canonicalJson(onChain.meta));
-  if (recomputed !== onChain.receipt_hash) throw new Error("Receipt hash mismatch!");
-  console.log(`   ✅ receipt verified on-chain (${RECEIPTS_CONTRACT})`);
+  await verifyReceipt(result.transfer.id, config.nodeUrl);
   const receiptTx = claim.transfer.transactions.receiptTxHash;
   if (receiptTx) console.log(`   receipt tx: https://testnet.nearblocks.io/txns/${receiptTx}`);
   console.log(`   receipt page: /r/${result.transfer.id} · pnpm verify:receipt ${result.transfer.id}\n`);

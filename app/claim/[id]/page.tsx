@@ -21,6 +21,7 @@ type ClaimInfo = {
   suggestedName?: string;
   recipientAccountId?: string;
   senderName?: string | null;
+  parentAccount?: string;
   mockLogin?: boolean;
   privyAppId?: string | null;
 };
@@ -123,7 +124,7 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
             autoComplete="off"
             disabled={busy}
           />
-          <span>.zermitt.testnet</span>
+          <span>.{info.parentAccount ?? "zermitt.testnet"}</span>
         </div>
       </div>
       {error && <p className="alert alert-error" role="alert">{error}</p>}
