@@ -70,3 +70,15 @@ localStorage linked to the identity. Recovery is on the roadmap.
   must be lifted carefully from the tutorial.
 - Mock-vs-real divergence: keep the mock producing the same `{email,
   nearAccountId}` shape the real flow emits so swapping is mechanical.
+
+## Resolution (2026-11-13)
+
+Fixed with an override in `pnpm-workspace.yaml` (`'@solana/kit': ^8.6.0`):
+pnpm had resolved Privy's `@solana/kit` peer to 5.x, while the
+`@solana-program/*` packages Privy pulls in need ^8. Privy's optional
+Farcaster peer is aliased to an empty module in `next.config.mjs`. Real
+Google login is live behind `DEMO_MODE=false` + `NEXT_PUBLIC_PRIVY_APP_ID`
+(identity only), and was verified end to end: Google sign-in, claim into
+`grandma.zermitt.testnet`, USDC shown in `/wallet`. OAuth redirects drop the
+URL fragment, so the claim page keeps the claim key in sessionStorage for
+the return trip.

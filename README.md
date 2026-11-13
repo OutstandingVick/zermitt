@@ -43,7 +43,7 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 | Any-asset routing (NEAR Intents) | ✅ live quotes · 🧪 execution mocked in DEMO_MODE (`LIVE_INTENTS=true` for a real mainnet swap) |
 | Quote and confirm before sending | ✅ |
 | Claim links | ✅ created and claimed on testnet |
-| Google sign-in | 🧪 mocked login (DEMO_MODE) fully working; real Privy integration deferred — its SDK currently breaks the Next build (see `scripts/spikes/02-social-login.md`) |
+| Google sign-in | ✅ Privy, identity only, used when `DEMO_MODE=false` and `NEXT_PUBLIC_PRIVY_APP_ID` are set (mocked in demo mode, so judges need no account) |
 | Named sub-accounts (`mum.zermitt.testnet`) | ✅ recipient picks a name; availability checked |
 | Gasless claims | ✅ recipient signs nothing on-chain; relayer pays every step (see below) |
 | Dollar balance | ✅ `/wallet` — USDC balance + received history with tx links |
@@ -60,8 +60,13 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
    mainnet account (Phase 1 decision).
 2. **Social login:** FastAuth is deprecated. Chosen: **Privy** (per the
    official NEAR social-login tutorial), with a mocked Google path in
-   DEMO_MODE so judges need no accounts. Details:
-   [scripts/spikes/02-social-login.md](scripts/spikes/02-social-login.md).
+   DEMO_MODE so judges need no accounts. Privy is used for identity only:
+   the NEAR key is still generated in the browser and every on-chain step
+   is relayer-signed. To use real Google login, set `DEMO_MODE=false`
+   and `NEXT_PUBLIC_PRIVY_APP_ID`, enable Google in the Privy dashboard,
+   and add your app's origin to Privy's allowed domains. Privy's React SDK
+   needs `@solana/kit` pinned to `^8` (set in `pnpm-workspace.yaml`).
+   Details: [scripts/spikes/02-social-login.md](scripts/spikes/02-social-login.md).
 3. **Claim links:** `pnpm spike:claim` uses the NEP-452 linkdrop contract at
    the `testnet` account — funds a link and claims it into a newly created
    account, printing both transaction hashes.
