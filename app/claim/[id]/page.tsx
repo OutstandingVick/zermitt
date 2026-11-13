@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Claim page: "You've received $X" → sign in with Google (Privy, or the
- * mocked path in DEMO_MODE) → pick a name → claim.
+ * Claim page: "You've received $X from Victor" → sign in with Google (Privy,
+ * or the mocked path in DEMO_MODE) → pick a name → claim.
  *
  * The recipient never signs an on-chain transaction: the browser generates
  * a fresh ed25519 keypair, sends only the PUBLIC key to the server, and the
@@ -20,6 +20,7 @@ type ClaimInfo = {
   usdcAmount?: string;
   suggestedName?: string;
   recipientAccountId?: string;
+  senderName?: string | null;
   mockLogin?: boolean;
   privyAppId?: string | null;
 };
@@ -29,8 +30,13 @@ type ClaimSuccess = {
   txUrls: Record<string, string>;
 };
 
-const box: React.CSSProperties = { border: "1px solid #ddd", borderRadius: 12, padding: 16, marginTop: 16 };
-const btn: React.CSSProperties = { width: "100%", padding: 14, borderRadius: 8, fontSize: 16 };
+const TX_LABELS: Record<string, string> = {
+  create: "Account created",
+  claim: "Link claimed",
+  storage: "USDC enabled",
+  payout: "USDC sent",
+  receipt: "Receipt recorded",
+};
 
 function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
   const [email, setEmail] = useState<string | null>(null);
@@ -44,7 +50,7 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
     setError(null);
     try {
       const claimKey = readClaimKey(id);
-      if (!claimKey) throw new Error("This link is missing its claim key.");
+      if (!claimKey) throw new Error("This link is missing its claim key. Open the full link you were sent.");
       const kp = KeyPair.fromRandom("ed25519");
       const res = await fetch(`/api/claim/${id}`, {
         method: "POST",
@@ -52,7 +58,7 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
         body: JSON.stringify({ name, publicKey: kp.getPublicKey().toString(), claimKey }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Claim failed");
+      if (!res.ok) throw new Error(data.error ?? "Claim failed. Your money is safe — try again.");
       try {
         localStorage.setItem(`zermitt:key:${data.accountId}`, kp.toString());
         localStorage.setItem(`zermitt:identity:${data.accountId}`, email ?? "mock");
@@ -68,58 +74,67 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
 
   if (success) {
     return (
-      <div style={box}>
-        <p style={{ fontSize: 20, margin: 0 }}>🎉 Claimed!</p>
-        <p>
-          <strong>{success.usdcAmount} USDC</strong> is in your new account{" "}
-          <code>{success.accountId}</code>
-        </p>
-        <p style={{ fontSize: 13 }}>
+      <div className="card stack">
+        <div className="center stack-sm">
+          <span className="badge">Claimed</span>
+          <p className="amount">{Number(success.usdcAmount).toFixed(2)} USDC</p>
+          <p className="small muted" style={{ margin: 0 }}>is in <code>{success.accountId}</code></p>
+        </div>
+        <ul className="checks">
           {Object.entries(success.txUrls).map(([k, url]) => (
-            <span key={k}>
-              <a href={url}>{k} tx ↗</a>{" "}
-            </span>
+            <li key={k}>
+              ✅ {TX_LABELS[k] ?? k} · <a href={url} target="_blank" rel="noreferrer">view ↗</a>
+            </li>
           ))}
-        </p>
-        <a href={`/wallet?account=${success.accountId}`}>
-          <button style={btn}>See my balance</button>
-        </a>
-        <p style={{ fontSize: 14 }}>
-          <a href={`/r/${id}`}>Public on-chain receipt ↗</a>
-        </p>
+        </ul>
+        <a className="btn btn-primary btn-block" href={`/wallet?account=${success.accountId}`}>See my balance</a>
+        <a className="btn btn-secondary btn-block" href={`/r/${id}`}>View receipt on NEAR</a>
       </div>
     );
   }
 
   if (!email) {
     return info.mockLogin ? (
-      <button style={btn} onClick={() => setEmail("demo.judge@example.com")}>
-        Continue with Google (mock)
-      </button>
+      <div className="stack-sm">
+        <button className="btn btn-primary btn-block" onClick={() => setEmail("demo.judge@example.com")}>
+          Continue with Google
+        </button>
+        <p className="tiny muted center" style={{ margin: 0 }}>Demo mode: sign-in is simulated, no account needed.</p>
+      </div>
     ) : (
       <RealGoogleLogin appId={info.privyAppId} onEmail={setEmail} />
     );
   }
 
   return (
-    <div style={box}>
-      <p style={{ margin: 0 }}>Signed in as <strong>{email}</strong></p>
-      <p>Pick your account name:</p>
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={{ flex: 1, padding: 12, borderRadius: 8, border: "1px solid #ccc", fontSize: 16 }}
-        />
-        <span style={{ color: "#777" }}>.zermitt.testnet</span>
-      </div>
-      {error && <p style={{ color: "#b00020" }}>{error}</p>}
-      <button style={{ ...btn, marginTop: 12 }} onClick={doClaim} disabled={busy || !name}>
-        {busy ? "Claiming…" : "Claim"}
-      </button>
-      <p style={{ fontSize: 12, color: "#777" }}>
-        Gas is paid by Zermitt — you never need NEAR to claim.
+    <div className="card stack">
+      <p className="small muted" style={{ margin: 0 }}>
+        Signed in as <strong style={{ color: "var(--ink)" }}>{email}</strong>
       </p>
+      <div className="stack-sm">
+        <label className="label" htmlFor="name">Choose your account name</label>
+        <div className="input-suffix">
+          <input
+            id="name"
+            className="input"
+            value={name}
+            onChange={(e) => setName(e.target.value.toLowerCase())}
+            autoCapitalize="none"
+            autoComplete="off"
+            disabled={busy}
+          />
+          <span>.zermitt.testnet</span>
+        </div>
+      </div>
+      {error && <p className="alert alert-error" role="alert">{error}</p>}
+      <button className="btn btn-primary btn-block" onClick={doClaim} disabled={busy || !name}>
+        {busy ? (<><span className="spinner" /> Claiming…</>) : "Claim my money"}
+      </button>
+      {busy && (
+        <p className="tiny muted center" style={{ margin: 0 }}>
+          Takes about a minute: creating your account, sending the USDC and recording the receipt on NEAR.
+        </p>
+      )}
     </div>
   );
 }
@@ -127,11 +142,15 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
 /** Privy is loaded only when real login is on, so demo mode never ships it. */
 const PrivyGoogleLogin = dynamic(() => import("./privy-login"), {
   ssr: false,
-  loading: () => <button style={btn} disabled>Loading sign-in…</button>,
+  loading: () => (
+    <button className="btn btn-primary btn-block" disabled>
+      <span className="spinner" /> Loading sign-in…
+    </button>
+  ),
 });
 
 function RealGoogleLogin({ appId, onEmail }: { appId?: string | null; onEmail: (e: string) => void }) {
-  if (!appId) return <p style={{ color: "#b00020" }}>Google sign-in is not configured.</p>;
+  if (!appId) return <p className="alert alert-error">Google sign-in is not configured.</p>;
   return <PrivyGoogleLogin appId={appId} onEmail={onEmail} />;
 }
 
@@ -161,42 +180,72 @@ function readClaimKey(id: string): string | null {
 export default function ClaimPage() {
   const { id } = useParams<{ id: string }>();
   const [info, setInfo] = useState<ClaimInfo | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     rememberClaimKey(id);
-    fetch(`/api/claim/${id}`).then(async (r) => setInfo(await r.json()));
+    fetch(`/api/claim/${id}`)
+      .then(async (r) => setInfo(await r.json()))
+      .catch(() => setLoadError(true));
   }, [id]);
 
-  let body: React.ReactNode = <p>Loading…</p>;
-  if (info) {
-    const s = info.state.state;
-    if (s === "invalid") body = <p>❌ {info.state.reason ?? "This claim link is invalid."}</p>;
-    else if (s === "expired") body = <p>⌛ This claim link has expired. Ask the sender for a new one.</p>;
-    else if (s === "already-claimed")
-      body = (
-        <p>
-          ✅ Already claimed{info.recipientAccountId ? <> into <code>{info.recipientAccountId}</code></> : null}.{" "}
-          {info.recipientAccountId && <a href={`/wallet?account=${info.recipientAccountId}`}>See the balance</a>}
-        </p>
-      );
-    else
-      body = (
-        <>
-          <p style={{ fontSize: 28, margin: "8px 0" }}>
-            You&rsquo;ve received <strong>${Number(info.amountUsd).toFixed(2)}</strong>
-          </p>
-          <p style={{ color: "#555" }}>{info.usdcAmount} USDC on NEAR, waiting for you.</p>
-          <ClaimFlow info={info} id={id} />
-        </>
-      );
-  }
+  if (loadError)
+    return (
+      <main className="container">
+        <p className="alert alert-error">Couldn&rsquo;t load this link. Check your connection and refresh.</p>
+      </main>
+    );
 
-  const content = (
-    <main style={{ maxWidth: 480, margin: "0 auto", padding: "2rem 1rem", fontSize: 16 }}>
-      <h1 style={{ fontSize: 24 }}>Zermitt</h1>
-      {body}
+  if (!info)
+    return (
+      <main className="container stack" aria-busy="true">
+        <div className="skeleton" style={{ height: 16, width: "40%", margin: "40px auto 0" }} />
+        <div className="skeleton" style={{ height: 52, width: "60%", margin: "0 auto" }} />
+        <div className="skeleton" style={{ height: 48 }} />
+      </main>
+    );
+
+  const s = info.state.state;
+  if (s === "invalid")
+    return (
+      <main className="container stack center">
+        <h1>Link not found</h1>
+        <p className="lead">{info.state.reason ?? "This claim link is invalid."} Check you opened the whole link.</p>
+      </main>
+    );
+  if (s === "expired")
+    return (
+      <main className="container stack center">
+        <h1>This link has expired</h1>
+        <p className="lead">Ask the sender to send a new one. Unclaimed money is never lost.</p>
+      </main>
+    );
+  if (s === "already-claimed")
+    return (
+      <main className="container stack center">
+        <span className="badge">Already claimed</span>
+        <h1>This money has been collected</h1>
+        {info.recipientAccountId && (
+          <>
+            <p className="lead">It went to <code>{info.recipientAccountId}</code>.</p>
+            <a className="btn btn-primary btn-block" href={`/wallet?account=${info.recipientAccountId}`}>See the balance</a>
+            <a className="btn btn-secondary btn-block" href={`/r/${id}`}>View receipt</a>
+          </>
+        )}
+      </main>
+    );
+
+  return (
+    <main className="container stack">
+      <section className="center stack-sm" style={{ paddingTop: 24 }}>
+        <p className="lead">{info.senderName ? `${info.senderName} sent you` : "You've received"}</p>
+        <p className="amount-hero">${Number(info.amountUsd).toFixed(2)}</p>
+        <p className="small muted" style={{ margin: 0 }}>{info.usdcAmount} USDC (digital dollars) on NEAR</p>
+      </section>
+      <ClaimFlow info={info} id={id} />
+      <p className="trust">
+        <span>Gas paid by Zermitt</span>·<span>Receipt on NEAR</span>
+      </p>
     </main>
   );
-
-  return content;
 }

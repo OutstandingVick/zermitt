@@ -54,8 +54,6 @@ async function fetchReceiptFrom(contract: string, id: string): Promise<OnChainRe
   return JSON.parse(new TextDecoder().decode(new Uint8Array(data.result.result)));
 }
 
-const box: React.CSSProperties = { border: "1px solid #ddd", borderRadius: 12, padding: 16, marginTop: 16 };
-
 export default function ReceiptPage() {
   const { id } = useParams<{ id: string }>();
   const [found, setFound] = useState<{ receipt: OnChainReceipt; contract: string } | "loading" | "pending">("loading");
@@ -94,108 +92,114 @@ export default function ReceiptPage() {
   }
 
   let body: React.ReactNode;
-  if (found === "loading") body = <p>Reading from the contract…</p>;
+  if (found === "loading")
+    body = (
+      <div className="card stack-sm" aria-busy="true">
+        <p className="small muted" style={{ margin: 0 }}>Reading the receipt from NEAR…</p>
+        <div className="skeleton" style={{ height: 40, width: "50%" }} />
+        <div className="skeleton" style={{ height: 14, width: "80%" }} />
+      </div>
+    );
   else if (found === "pending")
     body = (
-      <p>
-        ⏳ No on-chain receipt for this transfer yet. Receipts are recorded when
-        the transfer is claimed — this one is pending (or the id is unknown).
-      </p>
+      <div className="card stack-sm center">
+        <span className="badge badge-warn">Pending</span>
+        <h2>No receipt on NEAR yet</h2>
+        <p className="lead">Receipts are written when the money is claimed. This transfer hasn&rsquo;t been claimed yet, or the link is wrong.</p>
+      </div>
     );
   else {
     const r = found.receipt;
     const contract = found.contract;
     const amountUsd = Number(r.meta.amount_usdc) / 1e6;
-    const cmp = feeComparison(amountUsd, Number(r.meta.fee_usd), 25);
+    const cmp = feeComparison(amountUsd, Number(r.meta.fee_usd));
     body = (
       <>
-        <div style={box}>
-          <p style={{ margin: 0, fontSize: 22 }}>
-            ${amountUsd.toFixed(2)} → <code>{r.meta.recipient_account}</code>
-          </p>
-          <p style={{ color: "#555" }}>
-            Sent to &ldquo;{r.meta.sender_label}&rdquo; · {r.meta.route_summary}
-            <br />
-            Fee ${Number(r.meta.fee_usd).toFixed(4)} ·{" "}
-            {r.meta.swap_mode === "mocked" ? (
-              <strong>🧪 swap mocked (demo)</strong>
-            ) : (
-              <strong>live swap</strong>
-            )}{" "}
-            · {new Date(r.meta.timestamp).toLocaleString()}
-          </p>
-          <p style={{ fontSize: 14 }}>
-            {r.meta.tx_hashes.map((h) => (
-              <span key={h}>
-                <a href={`https://testnet.nearblocks.io/txns/${h}`}>{h.slice(0, 8)}… ↗</a>{" "}
-              </span>
-            ))}
-          </p>
+        <div className="card stack">
+          <div className="stack-sm">
+            <div className="row">
+              <span className="badge grow" style={{ flex: "none" }}>On NEAR</span>
+              {r.meta.swap_mode === "mocked" ? (
+                <span className="badge badge-warn">🧪 Swap simulated (demo)</span>
+              ) : (
+                <span className="badge">Live swap</span>
+              )}
+            </div>
+            <p className="amount">${amountUsd.toFixed(2)}</p>
+            <p className="small muted" style={{ margin: 0 }}>
+              to &ldquo;{r.meta.sender_label}&rdquo; · <code>{r.meta.recipient_account}</code>
+            </p>
+          </div>
+          <dl style={{ margin: 0 }}>
+            <div className="kv"><dt>Fee</dt><dd>${Number(r.meta.fee_usd).toFixed(4)}</dd></div>
+            <div className="kv"><dt>Sent</dt><dd>{new Date(r.meta.timestamp).toLocaleString()}</dd></div>
+            <div className="kv"><dt>Route</dt><dd className="small">{r.meta.route_summary}</dd></div>
+          </dl>
+          <div className="stack-sm">
+            <div className="label">Transactions</div>
+            <div className="links">
+              {r.meta.tx_hashes.map((h) => (
+                <a key={h} href={`https://testnet.nearblocks.io/txns/${h}`} target="_blank" rel="noreferrer">
+                  {h.slice(0, 8)}… ↗
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="card card-soft stack-sm">
+          <p style={{ margin: 0 }}>{cmp.sentence}</p>
+          <p className="tiny muted" style={{ margin: 0 }}>Comparison: {COMPARISON.source}. Estimates.</p>
         </div>
 
         {r.meta.agent_provider === "nearai" ? (
-          <div style={{ ...box, background: "#f3f7ff" }}>
-            <p style={{ margin: 0 }}>
-              🔒 <strong>Ran privately in a TEE</strong> (NEAR AI Cloud)
-            </p>
-            <p style={{ fontSize: 13, color: "#555", wordBreak: "break-all" }}>
-              Model: <code>{r.meta.model}</code>
-              <br />
-              Attestation hash: <code>{r.meta.attestation_hash}</code>
-              <br />
-              Signing key: <code>{r.meta.signing_key}</code> ·{" "}
-              <a href={`/api/receipt-proof/${id}`}>raw attestation report ↗</a>
-            </p>
-            <button onClick={runSigCheck} style={{ width: "100%", padding: 10, borderRadius: 8 }}>
-              Check response signature
-            </button>
-            {sigCheck === "ok" && <p style={{ color: "#0a7d2e" }}>✅ Signature recovers to the attested signing key.</p>}
-            {sigCheck === "bad" && <p style={{ color: "#b00020" }}>❌ TEE proof does not match this receipt.</p>}
-            {sigCheck === "unavailable" && <p style={{ color: "#777" }}>Signature material not available from this server.</p>}
+          <div className="card stack-sm">
+            <p style={{ margin: 0 }}>🔒 <strong>Ran privately in a TEE</strong> <span className="muted small">(NEAR AI Cloud)</span></p>
+            <dl style={{ margin: 0 }}>
+              <div className="kv"><dt>Model</dt><dd><code>{r.meta.model}</code></dd></div>
+              <div className="kv"><dt>Signing key</dt><dd><code>{r.meta.signing_key}</code></dd></div>
+              <div className="kv"><dt>Attestation</dt><dd><code>{r.meta.attestation_hash?.slice(0, 16)}…</code></dd></div>
+            </dl>
+            <button className="btn btn-secondary btn-block" onClick={runSigCheck}>Check response signature</button>
+            {sigCheck === "ok" && <p className="alert alert-ok">✅ Signature recovers to the attested signing key.</p>}
+            {sigCheck === "bad" && <p className="alert alert-error">❌ TEE proof does not match this receipt.</p>}
+            {sigCheck === "unavailable" && <p className="alert alert-warn">No signature bundle on this server for this receipt.</p>}
             {sigDetail && (
-              <ul style={{ fontSize: 13, color: "#555", margin: "4px 0 0", paddingLeft: 18 }}>
+              <ul className="checks tiny">
                 <li>{sigDetail.check.signatureRecovers ? "✅" : "❌"} signature recovers to signing key</li>
                 <li>{sigDetail.check.hashesMatchSignedText ? "✅" : "❌"} request/response hashes match signed text</li>
                 <li>{sigDetail.check.nonceBound ? "✅" : "❌"} attestation bound to request nonce</li>
                 <li>{sigDetail.check.reportHashMatchesChain ? "✅" : "❌"} sha256(report) = on-chain attestation_hash</li>
                 <li>{sigDetail.check.keyAndModelMatchChain ? "✅" : "❌"} signing key and model = on-chain fields</li>
-                <li>bundle source: {sigDetail.source === "fixture" ? "committed fixture" : "this server's data"}</li>
+                <li className="muted">bundle: {sigDetail.source === "fixture" ? "committed fixture" : "this server"} · <a href={`/api/receipt-proof/${id}`}>raw ↗</a></li>
               </ul>
             )}
           </div>
         ) : (
-          <p style={{ color: "#777", fontSize: 14 }}>Agent: standard (not private)</p>
+          <p className="small muted">Agent: standard (not private)</p>
         )}
 
-        <div style={box}>
-          <p style={{ margin: 0 }}>{cmp.sentence}</p>
-          <p style={{ fontSize: 12, color: "#777" }}>Comparison figures: {COMPARISON.source} — estimates.</p>
-        </div>
-
-        <div style={box}>
-          <p style={{ fontSize: 13, color: "#555", wordBreak: "break-all", margin: 0 }}>
-            On-chain hash: <code>{r.receipt_hash}</code>
-            <br />
-            Contract: <code>{contract}</code> · recorded{" "}
-            {new Date(r.recorded_at_ms).toLocaleString()}
-          </p>
-          <button
-            onClick={() => runVerify(r)}
-            style={{ width: "100%", padding: 12, borderRadius: 8, marginTop: 10, fontSize: 16 }}
-          >
-            Verify in this browser
-          </button>
-          {verify === "ok" && <p style={{ color: "#0a7d2e" }}>✅ Verified — the recomputed sha256 matches the on-chain hash.</p>}
-          {verify === "bad" && <p style={{ color: "#b00020" }}>❌ Mismatch — the data does not match the on-chain hash.</p>}
+        <div className="card stack-sm">
+          <div className="label">Verify</div>
+          <dl style={{ margin: 0 }}>
+            <div className="kv"><dt>Contract</dt><dd><code>{contract}</code></dd></div>
+            <div className="kv"><dt>Recorded</dt><dd>{new Date(r.recorded_at_ms).toLocaleString()}</dd></div>
+          </dl>
+          <p className="tiny muted" style={{ margin: 0 }}>On-chain hash <code>{r.receipt_hash}</code></p>
+          <button className="btn btn-primary btn-block" onClick={() => runVerify(r)}>Verify in this browser</button>
+          {verify === "ok" && <p className="alert alert-ok">✅ Verified: the recomputed sha256 matches the on-chain hash.</p>}
+          {verify === "bad" && <p className="alert alert-error">❌ Mismatch: the data does not match the on-chain hash.</p>}
         </div>
       </>
     );
   }
 
   return (
-    <main style={{ maxWidth: 560, margin: "0 auto", padding: "2rem 1rem", fontSize: 16 }}>
-      <h1 style={{ fontSize: 24 }}>Receipt</h1>
-      <p style={{ color: "#777", fontSize: 13 }}>Transfer {id}</p>
+    <main className="container stack">
+      <div className="stack-sm">
+        <h1>Receipt</h1>
+        <p className="tiny muted" style={{ margin: 0 }}>Transfer <code>{id}</code></p>
+      </div>
       {body}
     </main>
   );

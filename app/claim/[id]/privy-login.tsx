@@ -21,7 +21,7 @@ function GoogleButton({ onEmail }: { onEmail: (email: string) => void }) {
 
   return (
     <button
-      style={{ width: "100%", padding: 14, borderRadius: 8, fontSize: 16 }}
+      className="btn btn-primary btn-block"
       disabled={!ready}
       onClick={() => login({ loginMethods: ["google"] })}
     >
