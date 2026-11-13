@@ -43,7 +43,7 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
     setBusy(true);
     setError(null);
     try {
-      const claimKey = new URLSearchParams(window.location.hash.slice(1)).get("k");
+      const claimKey = readClaimKey(id);
       if (!claimKey) throw new Error("This link is missing its claim key.");
       const kp = KeyPair.fromRandom("ed25519");
       const res = await fetch(`/api/claim/${id}`, {
@@ -135,11 +135,35 @@ function RealGoogleLogin({ appId, onEmail }: { appId?: string | null; onEmail: (
   return <PrivyGoogleLogin appId={appId} onEmail={onEmail} />;
 }
 
+/**
+ * The claim key lives in the URL fragment, which OAuth redirects (Google via
+ * Privy) drop on the way back. Keep a per-tab copy so the claim still works
+ * after sign-in.
+ */
+function rememberClaimKey(id: string) {
+  const k = new URLSearchParams(window.location.hash.slice(1)).get("k");
+  if (!k) return;
+  try {
+    sessionStorage.setItem(`zermitt:claimKey:${id}`, k);
+  } catch {}
+}
+
+function readClaimKey(id: string): string | null {
+  const fromHash = new URLSearchParams(window.location.hash.slice(1)).get("k");
+  if (fromHash) return fromHash;
+  try {
+    return sessionStorage.getItem(`zermitt:claimKey:${id}`);
+  } catch {
+    return null;
+  }
+}
+
 export default function ClaimPage() {
   const { id } = useParams<{ id: string }>();
   const [info, setInfo] = useState<ClaimInfo | null>(null);
 
   useEffect(() => {
+    rememberClaimKey(id);
     fetch(`/api/claim/${id}`).then(async (r) => setInfo(await r.json()));
   }, [id]);
 
