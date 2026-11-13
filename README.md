@@ -49,7 +49,7 @@ pnpm spike:claim       # testnet claim link: fund + claim (needs RELAYER_* in .e
 | Receipt page | ✅ `/r/[id]` reads from the contract and verifies the hash in the browser |
 | On-chain receipt contract | ✅ `receipts.zermitt.testnet` (Rust, near-sdk; wasm committed) |
 | Fee comparison | ✅ estimates, source cited below |
-| Private agent (NEAR AI Cloud attestation) | 🗺️ code complete behind `AGENT_PROVIDER=nearai`, **not verified against the live service** (no API key was available) — see "Private agent" below |
+| Private agent (NEAR AI Cloud attestation) | 🗺️ code complete behind `AGENT_PROVIDER=nearai`; reaches the live API but **not verified end-to-end** (account awaiting credits; a parse without them falls back gracefully) — see "Private agent" below |
 
 ## Spike findings (Phase 0)
 
