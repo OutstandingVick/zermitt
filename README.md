@@ -48,6 +48,24 @@ Both parses ran in NEAR AI Cloud's TEE, and their signature bundles are
 committed, so the receipts and TEE proofs verify on a fresh clone (see
 [How to verify](#how-to-verify)).
 
+### Screens
+
+A real testnet send to Zara, captured at 390px:
+
+| 1. Type it | 2. Review the quote | 3. Share the link |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/app/send-chat-390.png" width="220" alt="Chat: the agent parses 'Send $3 to Zara' into chips, read privately in a TEE"> | <img src="docs/screenshots/app/send-quote-390.png" width="220" alt="Quote: 3.00 USDT in, 2.99 USDC out, fee, arrival time, gas $0.00, testnet note"> | <img src="docs/screenshots/app/send-shared-390.png" width="220" alt="Link ready for Zara, with Copy, WhatsApp, SMS and a status timeline"> |
+| **4. Claim with Google** | **5. Claimed** | **6. Receipt on NEAR** |
+| <img src="docs/screenshots/app/claim-390.png" width="220" alt="Claim page: Victor sent you $2.99, choose a name, Continue with Google"> | <img src="docs/screenshots/app/claim-done-390.png" width="220" alt="Claimed: five completed on-chain steps and See my balance"> | <img src="docs/screenshots/app/receipt-390.png" width="220" alt="Receipt verified on NEAR, with the TEE panel and fee comparison"> |
+| **Home** | | |
+| <img src="docs/screenshots/app/wallet-390.png" width="220" alt="Home: balance, Send by sentence card, received transfers, profile"> | | |
+
+Other states: [empty home](docs/screenshots/app/wallet-empty-390.png) ·
+[already claimed](docs/screenshots/app/claim-already-claimed-390.png) ·
+[invalid link](docs/screenshots/app/claim-invalid-390.png) ·
+[receipt waiting for claim](docs/screenshots/app/receipt-pending-390.png) ·
+[receipt with the standard agent](docs/screenshots/app/receipt-standard-agent-390.png).
+
 ## Architecture
 
 ```
