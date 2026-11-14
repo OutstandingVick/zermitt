@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
 
 export function Navbar() {
-  return <header className="site-nav"><Link className="wordmark" href="/" aria-label="Zermitt home"><Image src="/zermitt-mark.png" width={30} height={30} alt="" /><span>Zermitt</span></Link><nav aria-label="Primary"><a href="/#how">How it works</a><a href="/#family">For family</a><a href="/#proof">Proof</a><a href="/#near">NEAR</a></nav><div className="nav-actions"><a href="https://github.com/OutstandingVick/zermitt">GitHub</a><Button href="/send">Get Started</Button></div></header>;
+  return <header className="site-nav"><Link className="wordmark" href="/" aria-label="Zermitt home"><Image src="/zermitt-mark.png" width={30} height={30} alt="" /><span>Zermitt</span></Link><nav aria-label="Primary"><a href="/#how">How it works</a><a href="/#family">For family</a><a href="/#proof">Proof</a><a href="/#near">NEAR</a></nav><div className="nav-actions"><a href="https://github.com/OutstandingVick/zermitt">GitHub</a><Button href="/app">Get Started</Button></div></header>;
 }
 
 type ButtonProps = { children: ReactNode; href?: string; variant?: "primary" | "secondary"; className?: string } & ButtonHTMLAttributes<HTMLButtonElement> & AnchorHTMLAttributes<HTMLAnchorElement>;
@@ -28,7 +28,7 @@ export function Footer({ full = false }: { full?: boolean }) {
       <div className="footer-links">
         <div className="footer-intro"><p>Money home,<br/>by sentence.</p><small>Built at #NEARHackathon<br/>by OutstandingVick</small></div>
         <nav aria-label="Explore Zermitt"><a href="/#how">How it works</a><a href="/#family">For family</a><a href="/#features">Features</a></nav>
-        <nav aria-label="Use Zermitt"><Link href="/send">Get Started</Link><Link href="/wallet">Wallet</Link><Link href="/r/2b9f5291-5ed5-40a8-9823-acb6e7611cbf">Verify a receipt</Link></nav>
+        <nav aria-label="Use Zermitt"><Link href="/app">Get Started</Link><Link href="/app">App</Link><Link href="/r/2b9f5291-5ed5-40a8-9823-acb6e7611cbf">Verify a receipt</Link></nav>
         <nav aria-label="Zermitt online"><a href="https://github.com/OutstandingVick/zermitt">GitHub</a><a href="https://x.com/zermitt_cash">X · @zermitt_cash</a><a href="https://github.com/OutstandingVick/zermitt/blob/main/docs/IMAGE_CREDITS.md">Image credits</a></nav>
       </div>
       <div className="footer-signoff"><p><strong>$0.00</strong> gas for the family.</p><small>Testnet only · swap execution mocked · © 2026 Zermitt</small></div>

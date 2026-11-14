@@ -1,6 +1,6 @@
 # Zermitt
 
-The home page is a seven-section product story built in the **Calabash** design system. The app screens (`/wallet`, `/send`, `/claim`, `/r`) use a dark phone UI built from the approved designs in `docs/design/app/`. See the [landing-page claim audit](docs/LANDING_CLAIMS.md), [image credits](docs/IMAGE_CREDITS.md), [landing screenshots](docs/screenshots/) and [app screenshots at 390px](docs/screenshots/app/).
+The home page is a seven-section product story built in the **Calabash** design system. The app screens (`/app`, `/send`, `/claim`, `/r`) use a dark phone UI built from the approved designs in `docs/design/app/`. See the [landing-page claim audit](docs/LANDING_CLAIMS.md), [image credits](docs/IMAGE_CREDITS.md), [landing screenshots](docs/screenshots/) and [app screenshots at 390px](docs/screenshots/app/).
 
 **Send money home with one sentence.** Type "send $50 to mum". Zermitt quotes
 the route into USDC on NEAR through NEAR Intents and sends a claim link. Mum
@@ -87,7 +87,7 @@ Other states: [empty home](docs/screenshots/app/wallet-empty-390.png) ·
                                                 3. storage_deposit on usdc.fakes.testnet (relayer pays)
                                                 4. ft_transfer USDC → new account (relayer pays)
                                                 5. record_receipt on receipts-v2.zermitt.testnet
- /wallet  balance + history                     data/transfers.json (local record)
+ /app  balance + history                     data/transfers.json (local record)
  /r/<id>  receipt read FROM THE CONTRACT, hash verified in the browser
 ```
 
@@ -113,7 +113,7 @@ hash, TEE check) · `contracts/receipts/` (Rust contract, wasm committed).
 | Google sign-in | ✅ Privy, identity only, when `DEMO_MODE=false` and `NEXT_PUBLIC_PRIVY_APP_ID` are set; simulated in demo mode so judges need no account |
 | Named sub-accounts (`mama.zermitt.testnet`) | ✅ recipient picks a name; validated and checked for availability |
 | Gasless claims | ✅ recipient signs nothing on-chain; the relayer pays every step |
-| Dollar balance | ✅ `/wallet`: live USDC balance for the account on this device and its received transfers, each linking to its receipt |
+| Dollar balance | ✅ `/app`: live USDC balance for the account on this device and its received transfers, each linking to its receipt |
 | Receipt page | ✅ `/r/[id]` reads from the contract and verifies the hash in the browser |
 | On-chain receipt contract | ✅ `receipts-v2.zermitt.testnet` (v1 `receipts.zermitt.testnet` still read); Rust + near-sdk, wasm committed |
 | Fee comparison | ✅ shown on receipts; figures are estimates, source cited below |
@@ -127,7 +127,7 @@ hash, TEE check) · `contracts/receipts/` (Rust contract, wasm committed).
 pnpm install
 pnpm test                 # 44 tests
 pnpm build
-pnpm dev                  # open the printed URL (usually http://localhost:3000)
+pnpm dev                  # landing at http://localhost:3000, the app at /app
 pnpm demo:e2e             # keyless run: parse + live quote, skips on-chain
                           # send/claim, verifies a committed receipt on-chain
 pnpm verify:receipt 0153b43a-c452-4c4e-8d3b-8c7e2ef8101b   # Victor → mum
@@ -176,7 +176,7 @@ and `NEXT_PUBLIC_RECEIPTS_CONTRACT` to record them.
 
 In the browser: `/send` → type "Send $5 to Mum" → **Get a quote** → **Confirm and
 send** → open the claim link → pick a name → **Continue with Google** (the claim
-starts after sign-in and takes about a minute) → `/wallet` → receipt.
+starts after sign-in and takes about a minute) → `/app` → receipt.
 
 ### Receipts
 

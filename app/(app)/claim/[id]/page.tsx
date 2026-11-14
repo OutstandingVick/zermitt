@@ -163,7 +163,7 @@ function ClaimFlow({ info, id, onClaimed }: { info: ClaimInfo; id: string; onCla
             ))}
           </ul>
         </div>
-        <Button variant="lemon" href={`/wallet?account=${success.accountId}`}>See my balance</Button>
+        <Button variant="lemon" href={`/app?account=${success.accountId}`}>See my balance</Button>
         <Button variant="ghost" href={`/r/${id}`}>View receipt on NEAR</Button>
       </div>
     );
@@ -278,7 +278,7 @@ export default function ClaimPage() {
         title="Already claimed"
         body={info.recipientAccountId ? `This money went to ${info.recipientAccountId}.` : "This money has been collected."}
       >
-        {info.recipientAccountId && <Button variant="lemon" href={`/wallet?account=${info.recipientAccountId}`}>See the balance</Button>}
+        {info.recipientAccountId && <Button variant="lemon" href={`/app?account=${info.recipientAccountId}`}>See the balance</Button>}
         <Button variant="ghost" href={`/r/${id}`}>View receipt</Button>
       </Message>
     );

@@ -53,10 +53,10 @@ export function TopBar({ title, back, close }: { title?: string; back?: string |
 export type NavTab = "home" | "send" | "receipts" | "profile";
 export function BottomNav({ active }: { active: NavTab }) {
   const tabs: Array<{ id: NavTab; label: string; href: string; icon: IconName }> = [
-    { id: "home", label: "Home", href: "/wallet", icon: "home" },
+    { id: "home", label: "Home", href: "/app", icon: "home" },
     { id: "send", label: "Send", href: "/send", icon: "send" },
-    { id: "receipts", label: "Receipts", href: "/wallet#receipts", icon: "receipt" },
-    { id: "profile", label: "Profile", href: "/wallet#profile", icon: "profile" },
+    { id: "receipts", label: "Receipts", href: "/app#receipts", icon: "receipt" },
+    { id: "profile", label: "Profile", href: "/app#profile", icon: "profile" },
   ];
   return (
     <nav className="z-nav" aria-label="App">

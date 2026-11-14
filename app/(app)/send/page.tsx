@@ -107,7 +107,7 @@ export default function SendPage() {
     const shareText = encodeURIComponent(`You've received $${cents2(Number(quote.amountOutFormatted))}${from} on Zermitt. Claim it here: ${success.claimLink}`);
     return (
       <AppShell>
-        <TopBar close="/wallet" />
+        <TopBar close="/app" />
         <div className="z-center" style={{ marginTop: 12 }}>
           <div className="z-success-ring"><Icon name="check" size={38} stroke={2.6} /></div>
           <h1 className="z-u" style={{ fontSize: 30, lineHeight: 1.1, margin: "20px 0 0" }}>Link ready<br /><span className="z-f">for {who}</span></h1>
@@ -196,7 +196,7 @@ export default function SendPage() {
   /* ── Step 1: chat ────────────────────────────────────────────────── */
   return (
     <AppShell>
-      <TopBar title="New send" back="/wallet" />
+      <TopBar title="New send" back="/app" />
 
       <div className="z-row-flex" style={{ marginTop: 16 }}>
         <label htmlFor="from" className="z-lab" style={{ flex: "none" }}>From</label>

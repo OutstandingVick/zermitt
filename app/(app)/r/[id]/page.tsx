@@ -121,7 +121,7 @@ export default function ReceiptPage() {
   if (found === "loading")
     return (
       <AppShell>
-        <TopBar title="Receipt" back="/wallet" />
+        <TopBar title="Receipt" back="/app" />
         <div className="z-paper" style={{ marginTop: 22 }} aria-busy="true">
           <p className="z-xs" style={{ margin: 0, color: "var(--z-ink-2)" }}>Reading the receipt from NEAR…</p>
           <div style={{ height: 40, width: "55%", marginTop: 14, borderRadius: 12, background: "rgba(7,16,19,.08)" }} />
@@ -134,7 +134,7 @@ export default function ReceiptPage() {
   if (found === "pending")
     return (
       <AppShell>
-        <TopBar title="Receipt" back="/wallet" />
+        <TopBar title="Receipt" back="/app" />
         <div className="z-center" style={{ marginTop: 56 }}>
           <span className="z-badge z-badge-lemon">Waiting for claim</span>
           <h2 className="z-u" style={{ fontSize: 28, lineHeight: 1.15, margin: "16px 0 0" }}>No receipt on NEAR yet</h2>
@@ -143,7 +143,7 @@ export default function ReceiptPage() {
           </p>
         </div>
         <div className="z-spacer" />
-        <Button variant="ghost" href="/wallet">Back to home</Button>
+        <Button variant="ghost" href="/app">Back to home</Button>
       </AppShell>
     );
 
@@ -158,7 +158,7 @@ export default function ReceiptPage() {
 
   return (
     <AppShell>
-      <TopBar title="Receipt" back="/wallet" />
+      <TopBar title="Receipt" back="/app" />
 
       <article className="z-paper" style={{ marginTop: 22 }} aria-label="Receipt">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
