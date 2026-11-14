@@ -65,7 +65,7 @@ body:has(.zapp){background:#071013}
 .zapp-skip:focus{transform:none}
 .zapp-col{width:100%;max-width:430px;min-height:100vh;min-height:100dvh;margin:0 auto;position:relative;display:flex;flex-direction:column}
 .zmain{flex:1;display:flex;flex-direction:column;padding:28px 20px 28px}
-.zmain.has-nav{padding-bottom:116px}
+.zmain.has-nav{padding-bottom:20px}
 .zmain.glow{background:radial-gradient(120% 60% at 50% 0%,rgba(240,246,110,.18),rgba(7,16,19,0) 60%),var(--z-bg)}
 /* type */
 .z-u{font-family:var(--z-display);font-weight:400}
@@ -152,7 +152,7 @@ body:has(.zapp){background:#071013}
 .z-quote-sep{display:flex;align-items:center;gap:10px;margin:18px 0}
 .z-quote-sep span{flex:1;border-top:1.5px dashed rgba(7,16,19,.4)}
 /* bottom nav */
-.z-nav{position:fixed;z-index:20;left:50%;transform:translateX(-50%);bottom:20px;width:calc(min(430px,100%) - 32px);display:flex;justify-content:space-around;align-items:center;background:var(--z-surface);border:1px solid var(--z-line);border-radius:999px;padding:8px}
+.z-nav{position:sticky;z-index:20;bottom:20px;margin:24px -4px 0;margin-top:auto;display:flex;justify-content:space-around;align-items:center;background:var(--z-surface);border:1px solid var(--z-line);border-radius:999px;padding:8px}
 .z-nav a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 14px;border-radius:999px;color:var(--z-muted);text-decoration:none;font-size:11px;font-weight:700;min-width:44px}
 .z-nav a[aria-current=page]{background:var(--z-lemon);color:var(--z-ink)}
 /* sentence card */
@@ -168,3 +168,10 @@ body:has(.zapp){background:#071013}
 .z-mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow-wrap:anywhere}
 .z-details summary{cursor:pointer;color:var(--z-ink-2);font-size:13px;font-weight:700;padding:6px 0}
 @media (prefers-reduced-motion:reduce){.zapp *{animation:none!important;transition:none!important}}
+
+/* Phone frame on wider screens: a 390x844 device centred on the gradient, scrolling inside. */
+@media (min-width:600px) and (min-height:640px){
+.zapp{display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.zapp-col{flex:none;width:390px;max-width:390px;height:min(844px,calc(100dvh - 48px));min-height:0;border:10px solid #0B0F11;border-radius:54px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;box-shadow:0 0 0 2px #2A383C,0 30px 80px rgba(7,16,19,.45)}
+.zapp-col::-webkit-scrollbar{display:none}
+}
