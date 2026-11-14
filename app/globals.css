@@ -17,6 +17,7 @@ body{overflow-x:hidden}.container{width:min(calc(100% - 32px),520px)}
 .landing .family-split{background-image:var(--brand-gradient)}
 .landing .near{background:var(--brand-gradient)}
 .landing .problem,.landing .family-split,.landing .near{background-size:cover}
+.landing .closing{background:#F0F66E}
 .landing .photo-hero{width:100%;max-width:none;min-height:calc(100svh - 30px);margin-top:-98px;border-radius:0}
 .landing .photo-hero .hero-copy{padding-top:110px}
 @media(max-width:760px){.landing .photo-hero{width:100%;min-height:calc(100svh - 30px);margin-top:-90px}.landing .photo-hero .hero-copy{padding-top:100px}}
