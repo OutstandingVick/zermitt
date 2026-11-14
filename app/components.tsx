@@ -1,10 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "react";
-import { DemoNotice } from "./demo-notice";
 
 export function Navbar() {
-  return <><DemoNotice /><header className="site-nav"><Link className="wordmark" href="/" aria-label="Zermitt home"><Image src="/zermitt-mark.png" width={30} height={30} alt="" /><span>Zermitt</span></Link><nav aria-label="Primary"><a href="/#how">How it works</a><a href="/#family">For family</a><a href="/#proof">Proof</a><a href="/#near">NEAR</a></nav><div className="nav-actions"><a href="https://github.com/OutstandingVick/zermitt">GitHub</a><Button href="/send">Try the demo</Button></div></header></>;
+  return <header className="site-nav"><Link className="wordmark" href="/" aria-label="Zermitt home"><Image src="/zermitt-mark.png" width={30} height={30} alt="" /><span>Zermitt</span></Link><nav aria-label="Primary"><a href="/#how">How it works</a><a href="/#family">For family</a><a href="/#proof">Proof</a><a href="/#near">NEAR</a></nav><div className="nav-actions"><a href="https://github.com/OutstandingVick/zermitt">GitHub</a><Button href="/send">Try the demo</Button></div></header>;
 }
 
 type ButtonProps = { children: ReactNode; href?: string; variant?: "primary" | "secondary"; className?: string } & ButtonHTMLAttributes<HTMLButtonElement> & AnchorHTMLAttributes<HTMLAnchorElement>;
