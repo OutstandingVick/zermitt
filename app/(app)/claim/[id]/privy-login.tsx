@@ -8,8 +8,17 @@
  */
 import { useEffect } from "react";
 import { PrivyProvider, useLogin, usePrivy } from "@privy-io/react-auth";
+import { Icon } from "../../ui";
 
-function GoogleButton({ onEmail }: { onEmail: (email: string) => void }) {
+type Props = {
+  /** Fires whenever a signed-in Google identity is available. */
+  onEmail: (email: string) => void;
+  /** Called on click, before the Google redirect (save the name and intent). */
+  onStart: () => void;
+  disabled?: boolean;
+};
+
+function GoogleButton({ onEmail, onStart, disabled }: Props) {
   const { ready, authenticated, user } = usePrivy();
   const { login } = useLogin();
 
@@ -21,22 +30,21 @@ function GoogleButton({ onEmail }: { onEmail: (email: string) => void }) {
 
   return (
     <button
-      className="btn btn-primary btn-block"
-      disabled={!ready}
-      onClick={() => login({ loginMethods: ["google"] })}
+      type="button"
+      className="z-btn z-btn-light"
+      disabled={!ready || disabled}
+      onClick={() => {
+        onStart();
+        if (!authenticated) login({ loginMethods: ["google"] });
+      }}
     >
+      <Icon name="google" />
       {ready ? "Continue with Google" : "Loading sign-in…"}
     </button>
   );
 }
 
-export default function PrivyGoogleLogin({
-  appId,
-  onEmail,
-}: {
-  appId: string;
-  onEmail: (email: string) => void;
-}) {
+export default function PrivyGoogleLogin({ appId, ...props }: Props & { appId: string }) {
   return (
     <PrivyProvider
       appId={appId}
@@ -48,7 +56,7 @@ export default function PrivyGoogleLogin({
         },
       }}
     >
-      <GoogleButton onEmail={onEmail} />
+      <GoogleButton {...props} />
     </PrivyProvider>
   );
 }
