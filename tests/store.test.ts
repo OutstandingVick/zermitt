@@ -13,8 +13,8 @@ describe("transfer store", () => {
   });
   afterAll(() => rmSync(dir, { recursive: true, force: true }));
 
-  it("persists a receipt hash written after the claim, keeping the claim tx hashes", () => {
-    const t = store.createTransfer({
+  it("persists a receipt hash written after the claim, keeping the claim tx hashes", async () => {
+    const t = await store.createTransfer({
       request: { text: "send $3 to grandma", intent: { kind: "send", amount: 3, asset: "USDC", recipient: "grandma" } },
       quote: {} as never,
       route: { swapExecution: "mocked-demo", claimNetwork: "testnet", payoutToken: "usdc.fakes.testnet" },
@@ -22,14 +22,14 @@ describe("transfer store", () => {
       status: "sent",
     });
     // Claim step: status + claim tx hashes.
-    const claimed = store.updateTransfer(t.id, {
+    const claimed = await store.updateTransfer(t.id, {
       status: "claimed",
       transactions: { ...t.transactions, claimTxHash: "claim", payoutTxHash: "payout" },
     });
     // Receipt step (recordReceipt): merges the receipt hash onto the claimed record.
-    store.updateTransfer(t.id, { transactions: { ...claimed.transactions, receiptTxHash: "receipt" } });
+    await store.updateTransfer(t.id, { transactions: { ...claimed.transactions, receiptTxHash: "receipt" } });
 
-    const saved = store.getTransfer(t.id)!;
+    const saved = (await store.getTransfer(t.id))!;
     expect(saved.status).toBe("claimed");
     expect(saved.transactions).toEqual({
       linkFundTxHash: "fund",
@@ -37,5 +37,12 @@ describe("transfer store", () => {
       payoutTxHash: "payout",
       receiptTxHash: "receipt",
     });
+  });
+
+  it("rate-limits per key within a window", async () => {
+    expect(await store.allowRate("ip:test", 2, 3600)).toBe(true);
+    expect(await store.allowRate("ip:test", 2, 3600)).toBe(true);
+    expect(await store.allowRate("ip:test", 2, 3600)).toBe(false);
+    expect(await store.allowRate("ip:other", 2, 3600)).toBe(true);
   });
 });

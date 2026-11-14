@@ -6,10 +6,13 @@ import { ClaimError, executeClaim } from "@/lib/claim/execute";
 
 type Params = { params: Promise<{ id: string }> };
 
+/** A claim runs five testnet transactions in a row (~1 minute). */
+export const maxDuration = 300;
+
 /** Claim page data: state + display info. Never returns secrets. */
 export async function GET(_req: Request, { params }: Params) {
   const { id } = await params;
-  const record = getTransfer(id);
+  const record = await getTransfer(id);
   const state = claimState(record);
   if (!record) return NextResponse.json({ state }, { status: 404 });
   const config = loadConfig();

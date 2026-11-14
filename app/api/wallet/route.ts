@@ -17,7 +17,7 @@ export async function GET(req: Request) {
       args: { account_id: accountId },
     })) as string;
 
-    const history = listTransfers()
+    const history = (await listTransfers())
       .filter((t) => t.recipientAccountId === accountId)
       .map((t) => ({
         id: t.id,

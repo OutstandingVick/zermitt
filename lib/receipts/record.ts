@@ -40,7 +40,7 @@ export async function recordReceipt(
     gas: BigInt("50000000000000"),
   });
   const receiptTxHash = res.transaction.hash as string;
-  updateTransfer(transfer.id, {
+  await updateTransfer(transfer.id, {
     transactions: { ...transfer.transactions, receiptTxHash },
   });
   return { receiptTxHash, receiptTxUrl: txLink(config.networkId, receiptTxHash), hash };

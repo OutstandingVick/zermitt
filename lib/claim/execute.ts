@@ -61,7 +61,7 @@ export async function executeClaim(
   claimPrivateKey: string,
   config: ZermittConfig = loadConfig()
 ): Promise<ClaimResult> {
-  const record = getTransfer(transferId);
+  const record = await getTransfer(transferId);
   const state = claimState(record);
   if (state.state === "invalid") throw new ClaimError(state.reason, 404);
   if (state.state === "expired") throw new ClaimError("This claim link has expired.", 410);
@@ -128,7 +128,7 @@ export async function executeClaim(
   });
   const payoutHash = payoutRes.transaction.hash as string;
 
-  let updated = updateTransfer(transfer.id, {
+  let updated = await updateTransfer(transfer.id, {
     status: "claimed",
     recipientAccountId: accountId,
     transactions: {

@@ -5,7 +5,7 @@
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { getTransfer } from "../lib/transfers/store";
+import { getAttestation, getTransfer } from "../lib/transfers/store";
 import type { TeeBundle } from "../lib/receipts/tee";
 
 const ids = process.argv.slice(2);
@@ -17,9 +17,10 @@ const outDir = join(process.cwd(), "fixtures", "tee");
 mkdirSync(outDir, { recursive: true });
 
 for (const id of ids) {
-  const p = getTransfer(id)?.agentProof;
+  const p = (await getTransfer(id))?.agentProof;
   if (!p) throw new Error(`${id}: no agent proof`);
-  const raw = readFileSync(join(process.cwd(), "data", "attestations", `${p.chatId}.json`), "utf8");
+  const raw = await getAttestation(p.chatId);
+  if (!raw) throw new Error(`${id}: attestation report not found`);
   // Older proofs didn't store the nonce; recover it from the report entry for this signer.
   const nonce =
     p.nonce ??

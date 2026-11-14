@@ -148,13 +148,10 @@ export async function collectProof(
       (a.request_nonce === undefined || a.request_nonce === nonce)
   );
 
-  // Persist the raw report so the receipt page can link to it.
+  // Persist the raw report so the receipt page can check it later.
   try {
-    const { mkdirSync, writeFileSync } = await import("node:fs");
-    const { join } = await import("node:path");
-    const dir = join(process.cwd(), "data", "attestations");
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, `${chatId}.json`), reportText);
+    const { saveAttestation } = await import("../transfers/store");
+    await saveAttestation(chatId, reportText);
   } catch (err) {
     console.warn("Could not persist attestation report:", err);
   }

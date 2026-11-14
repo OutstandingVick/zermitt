@@ -9,7 +9,7 @@ import { loadTeeBundle } from "@/lib/receipts/bundle-source";
  */
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const found = loadTeeBundle(id);
+  const found = await loadTeeBundle(id);
   if (!found) return NextResponse.json({ error: "No TEE bundle for this transfer." }, { status: 404 });
   return NextResponse.json({ source: found.source, bundle: found.bundle });
 }

@@ -42,7 +42,7 @@ export async function executeSend(
 ): Promise<SendResult> {
   const relayer = requireRelayer(config);
 
-  const record = createTransfer({
+  const record = await createTransfer({
     request: { text, intent },
     ...(senderName?.trim() ? { senderName: senderName.trim().slice(0, 40) } : {}),
     ...(agentProof ? { agentProof } : {}),
@@ -88,7 +88,7 @@ export async function executeSend(
   const appUrl = process.env.APP_URL ?? requestOrigin ?? "http://localhost:3000";
   const claimLink = `${appUrl}/claim/${record.id}#k=${claimKey.toString()}`;
 
-  const transfer = updateTransfer(record.id, {
+  const transfer = await updateTransfer(record.id, {
     transactions: { ...record.transactions, linkFundTxHash, swapTxHash },
     claimLink,
     claimKeyPublic: claimKey.getPublicKey().toString(),

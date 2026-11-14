@@ -33,7 +33,7 @@ async function verifyReceipt(id: string, nodeUrl: string): Promise<void> {
   console.log(`   ✅ receipt verified on-chain (${RECEIPTS_CONTRACT}): $${(Number(onChain.meta.amount_usdc) / 1e6).toFixed(2)} → ${onChain.meta.recipient_account}`);
   const meta = onChain.meta as ReceiptMeta;
   if (meta.agent_provider === "nearai") {
-    const found = loadTeeBundle(id);
+    const found = await loadTeeBundle(id);
     if (found) {
       const c = await checkTeeBundle(found.bundle, meta);
       console.log(`   ${c.ok ? "✅" : "❌"} TEE proof (${meta.model}): signature, nonce, report hash and key all match the chain`);

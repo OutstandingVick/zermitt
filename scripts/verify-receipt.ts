@@ -70,7 +70,7 @@ async function main() {
       `\n🔒 Private agent: model ${meta.model}, TEE signing key ${meta.signing_key}` +
         `\n   attestation hash ${meta.attestation_hash}`
     );
-    const found = loadTeeBundle(id);
+    const found = await loadTeeBundle(id);
     if (!found) {
       console.log("   No TEE bundle (local data or fixtures/tee/) for this receipt — signature not checked.");
       return;
