@@ -1,4 +1,4 @@
-# Two-minute demo script (52-second pitch + 68-second product walkthrough)
+# Demo script (about 1:46: 61-second pitch video + 45-second product walkthrough)
 
 ## Before recording (5 min)
 
@@ -28,7 +28,11 @@ real Google sign-in, the private agent, and no local server to keep running.
 
 ## Shot list (live site)
 
-### Part 1 — the pitch (0:00–0:52), window A on the landing page
+### Part 1 — the pitch video (0:00–1:01)
+
+Rendered with Remotion and voiced (`docs/video/zermitt-pitch.mp4`, source in
+`~/zermitt-video`). The table below is its script; record part 2 separately and
+join them.
 
 Speak at a calm, steady pace (about 150 words a minute). Scroll down the
 landing page section by section as you go, so the screen follows the story.
@@ -41,21 +45,19 @@ landing page section by section as you go, so the screen follows the story.
 | 0:33–0:42 | Scroll to "For the family" | "She taps the link, signs in with Google, and gets her own named account with the dollars in it. No app. No wallet. No gas. Zermitt pays every fee." |
 | 0:42–0:52 | Scroll to "Trust you can check" (the receipt) | "And every transfer leaves a receipt on NEAR that anyone can verify, including proof of which AI model handled the request. It's live on NEAR testnet today. Let me show you." |
 
-### Part 2 — the product (0:52–2:00)
+### Part 2 — the product (1:01–1:46)
+
+Fast and visual: let the screens do the talking. Pre-type nothing except the
+sentence; keep window B ready on the side.
 
 | Time | Window | Action | What to say |
 | --- | --- | --- | --- |
-| 0:52–0:55 | A | **Get Started** → `/app` (the phone appears on the gradient) → orange send button | "As a sender, I don't even need an account." |
-| 0:55–1:03 | A | Type `Send $20 to Aunty Grace` → send button. Agent reply shows chips **Amount · $20**, **To · Aunty Grace**, **Pay with · USDT** | "The agent reads it inside a NEAR AI Cloud enclave." (point at the blue *Read privately in a NEAR AI Cloud TEE* line) |
-| 1:03–1:10 | A | **Get a quote** → orange card: You send 20.00 USDT ↓ Aunty Grace gets ~19.99 USDC; rows Fee, Arrives, Gas $0.00 | "Live NEAR Intents quote. Fees in cents, and zero gas for her." |
-| 1:10–1:14 | A | **Confirm and send** → "Link ready for Aunty Grace" | "A claim link, ready for WhatsApp or SMS." (point at the lemon *Waiting…* step) |
-| 1:14–1:17 | A | **Copy** → paste into window B | |
-| 1:17–1:24 | B | Claim page: "Victor sent you $19.99", name field shows `aunty-grace` | "Here's what Grace sees. Just this." |
-| 1:24–1:30 | B | **Continue with Google** → demo Google account | "She picks a name and signs in with Google. No seed phrase." |
-| 1:30–1:33 | B | **Jump-cut** past the ~1-minute "Claiming…" wait to **It's yours** | |
-| 1:33–1:39 | B | Point at the five blue steps (account, link, USDC enabled, USDC sent, receipt) → **See my balance** → `/app` | "Account created, dollars delivered, receipt recorded. Zermitt paid every fee." |
-| 1:39–1:54 | B | **Receipts** tab → the row → `/r/<id>`. Badge **Verified on NEAR**, then **Check the TEE signature** → pass, then **Verify in this browser** | "Every transfer has a receipt on NEAR that anyone can recheck, including proof the AI ran privately in a TEE." |
-| 1:54–2:00 | B | Scroll to **Versus a bank**, hold | "Cents, not dollars. Seconds, not days. That's Zermitt." |
+| 1:01–1:09 | A | `/app` → orange send button → type `Send $20 to Aunty Grace` → send. Chips appear with the blue TEE line | "One sentence. The agent reads it privately." |
+| 1:09–1:15 | A | **Get a quote** → orange card → **Confirm and send** | "Live quote, cents in fees. Confirm, and the link is ready." |
+| 1:15–1:23 | A → B | **Copy** → paste in window B → claim page "Victor sent you $19.98" → **Continue with Google** | "Grace opens it and signs in with Google." |
+| 1:23–1:25 | B | **Jump-cut** to **It's yours** | |
+| 1:25–1:33 | B | Five blue steps → **See my balance** → `/app` with the balance | "Her own account, dollars in it. Zermitt paid every fee." |
+| 1:33–1:46 | B | **Receipts** → the receipt with **Verified on NEAR** → **Check the TEE signature** (passes) | "And a receipt on NEAR anyone can check. That's Zermitt." |
 
 ## Backup: pre-seeded transfers (already claimed)
 
