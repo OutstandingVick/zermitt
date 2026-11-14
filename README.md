@@ -125,7 +125,7 @@ hash, TEE check) · `contracts/receipts/` (Rust contract, wasm committed).
 
 ```bash
 pnpm install
-pnpm test                 # 43 tests
+pnpm test                 # 44 tests
 pnpm build
 pnpm dev                  # open the printed URL (usually http://localhost:3000)
 pnpm demo:e2e             # keyless run: parse + live quote, skips on-chain
@@ -243,7 +243,7 @@ against mainnet yet**.
 
 - **Technical:** five on-chain steps per claim, all relayer-paid. A custom
   Rust contract with unit tests. Receipts that verify from the chain alone.
-  TEE attestation checked and bound to each receipt. 43 TypeScript tests,
+  TEE attestation checked and bound to each receipt. 44 TypeScript tests,
   and a fresh clone runs with no keys.
 - **Design:** a dark, mobile-first phone UI (centred 430px column on desktop)
   built around the recipient: a large amount and the sender's name, one
