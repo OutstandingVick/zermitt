@@ -20,5 +20,18 @@ export function TornEdge() { return <svg className="torn-edge" viewBox="0 0 1440
 
 export function Footer({ full = false }: { full?: boolean }) {
   if (!full) return <footer className="slim-footer"><TornEdge /><div><span>Zermitt</span><small>Testnet money only · cash-out and card are roadmap items.</small></div></footer>;
-  return <footer className="full-footer"><TornEdge /><div className="footer-grid"><div><p>Built at #NEARHackathon<br/>by OutstandingVick</p><a className="footer-box" href="https://x.com/zermitt_cash">X · @zermitt_cash</a></div><figure className="polaroid"><Image src="/landing/family-together.jpg" fill alt="A mother and son reunited" sizes="260px"/><figcaption>Mother and son, reunited.</figcaption></figure><div className="gas"><strong>$0.00</strong><span>gas for the family</span><div><a href="https://github.com/OutstandingVick/zermitt">GitHub</a><Link href="/r/2b9f5291-5ed5-40a8-9823-acb6e7611cbf">Verify a receipt</Link></div></div></div><div className="giant-wordmark"><span>Z</span>ERMITT</div><div className="footer-meta">Money home, by sentence. · <a href="https://github.com/OutstandingVick/zermitt/blob/main/docs/IMAGE_CREDITS.md">Image credits</a> · © 2026 Zermitt</div></footer>;
+  return <footer className="full-footer">
+    <TornEdge />
+    <div className="footer-photo" aria-hidden="true"><Image src="/landing/family-together.jpg" fill alt="" sizes="100vw" /></div>
+    <div className="footer-content">
+      <div className="giant-wordmark"><span>Z</span>ERMITT</div>
+      <div className="footer-links">
+        <div className="footer-intro"><p>Money home,<br/>by sentence.</p><small>Built at #NEARHackathon<br/>by OutstandingVick</small></div>
+        <nav aria-label="Explore Zermitt"><a href="/#how">How it works</a><a href="/#family">For family</a><a href="/#features">Features</a></nav>
+        <nav aria-label="Use Zermitt"><Link href="/send">Get Started</Link><Link href="/wallet">Wallet</Link><Link href="/r/2b9f5291-5ed5-40a8-9823-acb6e7611cbf">Verify a receipt</Link></nav>
+        <nav aria-label="Zermitt online"><a href="https://github.com/OutstandingVick/zermitt">GitHub</a><a href="https://x.com/zermitt_cash">X · @zermitt_cash</a><a href="https://github.com/OutstandingVick/zermitt/blob/main/docs/IMAGE_CREDITS.md">Image credits</a></nav>
+      </div>
+      <div className="footer-signoff"><p><strong>$0.00</strong> gas for the family.</p><small>Testnet only · swap execution mocked · © 2026 Zermitt</small></div>
+    </div>
+  </footer>;
 }
