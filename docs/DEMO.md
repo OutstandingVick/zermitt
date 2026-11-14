@@ -1,4 +1,4 @@
-# 75-second demo script
+# Two-minute demo script (52-second pitch + 68-second product walkthrough)
 
 ## Before recording (5 min)
 
@@ -28,20 +28,34 @@ real Google sign-in, the private agent, and no local server to keep running.
 
 ## Shot list (live site)
 
+### Part 1 — the pitch (0:00–0:52), window A on the landing page
+
+Speak at a calm, steady pace (about 150 words a minute). Scroll down the
+landing page section by section as you go, so the screen follows the story.
+
+| Time | On screen | What to say |
+| --- | --- | --- |
+| 0:00–0:10 | Hero: "Send dollars home. By typing a sentence." | "Hundreds of millions of people send money home to their families. On a two-hundred-dollar transfer they lose about six percent to fees, and the money can take days to arrive." |
+| 0:10–0:19 | Scroll to the 6.2% / 1–5 days / 0 wallets figures | "Crypto solved the speed and the cost years ago. What it never solved is the person on the other end. Ask a grandmother in Lagos for a seed phrase, and the conversation is over." |
+| 0:19–0:33 | Scroll to "How a send works" (the ticket) | "Zermitt is an AI remittance agent on NEAR. You type one sentence: send twenty dollars to Aunty Grace. The agent reads it privately, inside a secure enclave, gets a live quote through NEAR Intents, and sends her a link." |
+| 0:33–0:42 | Scroll to "For the family" | "She taps the link, signs in with Google, and gets her own named account with the dollars in it. No app. No wallet. No gas. Zermitt pays every fee." |
+| 0:42–0:52 | Scroll to "Trust you can check" (the receipt) | "And every transfer leaves a receipt on NEAR that anyone can verify, including proof of which AI model handled the request. It's live on NEAR testnet today. Let me show you." |
+
+### Part 2 — the product (0:52–2:00)
+
 | Time | Window | Action | What to say |
 | --- | --- | --- | --- |
-| 0:00–0:07 | A | `https://zermitt.vercel.app` (light landing, full width) | "Sending $200 home costs about 6% and takes days. Zermitt: one sentence." |
-| 0:07–0:10 | A | **Get Started** → `/app` (the phone appears on the gradient) → orange send button → "New send" | "Here's the app." |
-| 0:10–0:18 | A | Type `Send $20 to Aunty Grace` → send button. Agent reply shows chips **Amount · $20**, **To · Aunty Grace**, **Pay with · USDT** | "A private AI agent reads it, inside a NEAR AI Cloud enclave." (point at the blue *Read privately in a NEAR AI Cloud TEE* line) |
-| 0:18–0:25 | A | **Get a quote** → orange card: You send 20.00 USDT ↓ Aunty Grace gets ~19.99 USDC; rows Fee, Arrives, Gas $0.00 | "Live NEAR Intents quote. Fees in cents, and zero gas for her." |
-| 0:25–0:29 | A | **Confirm and send** → "Link ready for Aunty Grace" | "A claim link, ready for WhatsApp or SMS. She's waiting to claim." (lemon *Waiting…* step) |
-| 0:29–0:32 | A | **Copy** → paste into window B | |
-| 0:32–0:39 | B | Claim page: "Victor sent you $19.99", name field shows `aunty-grace` | "Grace has no wallet. Just this." |
-| 0:39–0:45 | B | **Continue with Google** → demo Google account | "She picks a name and signs in with Google. No seed phrase." |
-| 0:45–0:48 | B | **Jump-cut** past the ~1-minute "Claiming…" wait to **It's yours** | |
-| 0:48–0:54 | B | Point at the five blue steps (account, link, USDC enabled, USDC sent, receipt) → **See my balance** → `/app` | "Account created, dollars delivered, receipt recorded. Zermitt paid every fee." |
-| 0:54–1:09 | B | **Receipts** tab → the row → `/r/<id>`. Badge **Verified on NEAR**, then **Check the TEE signature** → pass, then **Verify in this browser** | "Every transfer has a receipt on NEAR that anyone can recheck, including proof the AI ran privately in a TEE." |
-| 1:09–1:15 | B | Scroll to **Versus a bank**, hold | "Cents, not dollars. Seconds, not days. Zermitt." |
+| 0:52–0:55 | A | **Get Started** → `/app` (the phone appears on the gradient) → orange send button | "As a sender, I don't even need an account." |
+| 0:55–1:03 | A | Type `Send $20 to Aunty Grace` → send button. Agent reply shows chips **Amount · $20**, **To · Aunty Grace**, **Pay with · USDT** | "The agent reads it inside a NEAR AI Cloud enclave." (point at the blue *Read privately in a NEAR AI Cloud TEE* line) |
+| 1:03–1:10 | A | **Get a quote** → orange card: You send 20.00 USDT ↓ Aunty Grace gets ~19.99 USDC; rows Fee, Arrives, Gas $0.00 | "Live NEAR Intents quote. Fees in cents, and zero gas for her." |
+| 1:10–1:14 | A | **Confirm and send** → "Link ready for Aunty Grace" | "A claim link, ready for WhatsApp or SMS." (point at the lemon *Waiting…* step) |
+| 1:14–1:17 | A | **Copy** → paste into window B | |
+| 1:17–1:24 | B | Claim page: "Victor sent you $19.99", name field shows `aunty-grace` | "Here's what Grace sees. Just this." |
+| 1:24–1:30 | B | **Continue with Google** → demo Google account | "She picks a name and signs in with Google. No seed phrase." |
+| 1:30–1:33 | B | **Jump-cut** past the ~1-minute "Claiming…" wait to **It's yours** | |
+| 1:33–1:39 | B | Point at the five blue steps (account, link, USDC enabled, USDC sent, receipt) → **See my balance** → `/app` | "Account created, dollars delivered, receipt recorded. Zermitt paid every fee." |
+| 1:39–1:54 | B | **Receipts** tab → the row → `/r/<id>`. Badge **Verified on NEAR**, then **Check the TEE signature** → pass, then **Verify in this browser** | "Every transfer has a receipt on NEAR that anyone can recheck, including proof the AI ran privately in a TEE." |
+| 1:54–2:00 | B | Scroll to **Versus a bank**, hold | "Cents, not dollars. Seconds, not days. That's Zermitt." |
 
 ## Backup: pre-seeded transfers (already claimed)
 
