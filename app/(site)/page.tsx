@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Button, Footer, Label, Section } from "./components";
-import { HowTicket } from "./how-ticket";
+import { Button, Footer, Label, Section } from "../components";
+import { HowTicket } from "../how-ticket";
 const receiptHref="/r/2b9f5291-5ed5-40a8-9823-acb6e7611cbf";
 export default function Home(){return <main id="main-content" className="landing">
 <Section className="photo-hero"><Image src="/landing/hero-man-phone.jpg" fill priority alt="A smiling Nigerian man looking at his phone" sizes="100vw"/><div className="hero-shade"/><div className="hero-copy"><h1><b>Send dollars home.</b><span>By typing a sentence.</span></h1><div><Button href="/send">Try the demo</Button><p>An AI agent sends it. Your family claims it with Google. Every transfer leaves a receipt on NEAR.</p></div></div></Section>
