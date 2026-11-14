@@ -1,6 +1,6 @@
 # Zermitt
 
-The home page is a seven-section product story built in the **Calabash** design system. The app screens (`/app`, `/send`, `/claim`, `/r`) use a dark phone UI built from the approved designs in `docs/design/app/`. See the [landing-page claim audit](docs/LANDING_CLAIMS.md), [image credits](docs/IMAGE_CREDITS.md), [landing screenshots](docs/screenshots/) and [app screenshots at 390px](docs/screenshots/app/).
+The home page is a seven-section product story built in the **Calabash** design system. The app screens (`/app`, `/send`, `/claim`, `/r`) use a dark phone UI built from the approved designs in `docs/design/app/`. See the [landing-page claim audit](docs/LANDING_CLAIMS.md), [image credits](docs/IMAGE_CREDITS.md), [landing screenshots](docs/screenshots/) and [app screenshots](docs/screenshots/app/).
 
 **Send money home with one sentence.** Type "send $50 to mum". Zermitt quotes
 the route into USDC on NEAR through NEAR Intents and sends a claim link. Mum
@@ -50,21 +50,21 @@ committed, so the receipts and TEE proofs verify on a fresh clone (see
 
 ### Screens
 
-A real testnet send to Zara, captured at 390px:
+A real testnet send to Kemi, shown in the phone frame the app uses on wider screens (on a phone it fills the screen):
 
 | 1. Type it | 2. Review the quote | 3. Share the link |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/app/send-chat-390.png" width="220" alt="Chat: the agent parses 'Send $3 to Zara' into chips, read privately in a TEE"> | <img src="docs/screenshots/app/send-quote-390.png" width="220" alt="Quote: 3.00 USDT in, 2.99 USDC out, fee, arrival time, gas $0.00, testnet note"> | <img src="docs/screenshots/app/send-shared-390.png" width="220" alt="Link ready for Zara, with Copy, WhatsApp, SMS and a status timeline"> |
+| <img src="docs/screenshots/app/send-chat.png" width="240" alt="Chat: the agent parses 'Send $5 to Kemi' into chips, read privately in a TEE"> | <img src="docs/screenshots/app/send-quote.png" width="240" alt="Quote: 5.00 USDT in, 4.99 USDC out, fee, arrival time, gas $0.00, testnet note"> | <img src="docs/screenshots/app/send-shared.png" width="240" alt="Link ready for Kemi, with Copy, WhatsApp, SMS and a status timeline"> |
 | **4. Claim with Google** | **5. Claimed** | **6. Receipt on NEAR** |
-| <img src="docs/screenshots/app/claim-390.png" width="220" alt="Claim page: Victor sent you $2.99, choose a name, Continue with Google"> | <img src="docs/screenshots/app/claim-done-390.png" width="220" alt="Claimed: five completed on-chain steps and See my balance"> | <img src="docs/screenshots/app/receipt-390.png" width="220" alt="Receipt verified on NEAR, with the TEE panel and fee comparison"> |
+| <img src="docs/screenshots/app/claim.png" width="240" alt="Claim page: Victor sent you $4.99, choose a name, Continue with Google"> | <img src="docs/screenshots/app/claim-done.png" width="240" alt="Claimed: five completed on-chain steps and See my balance"> | <img src="docs/screenshots/app/receipt.png" width="240" alt="Receipt verified on NEAR, with the TEE panel and fee comparison"> |
 | **Home** | | |
-| <img src="docs/screenshots/app/wallet-390.png" width="220" alt="Home: balance, Send by sentence card, received transfers, profile"> | | |
+| <img src="docs/screenshots/app/home.png" width="240" alt="Home: balance, Send by sentence card, received transfers, profile"> | | |
 
-Other states: [empty home](docs/screenshots/app/wallet-empty-390.png) ·
-[already claimed](docs/screenshots/app/claim-already-claimed-390.png) ·
-[invalid link](docs/screenshots/app/claim-invalid-390.png) ·
-[receipt waiting for claim](docs/screenshots/app/receipt-pending-390.png) ·
-[receipt with the standard agent](docs/screenshots/app/receipt-standard-agent-390.png).
+Other states: [empty home](docs/screenshots/app/home-empty.png) ·
+[already claimed](docs/screenshots/app/claim-already-claimed.png) ·
+[invalid link](docs/screenshots/app/claim-invalid.png) ·
+[receipt waiting for claim](docs/screenshots/app/receipt-pending.png) ·
+[receipt with the standard agent](docs/screenshots/app/receipt-standard-agent.png).
 
 ## Architecture
 
