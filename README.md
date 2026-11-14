@@ -1,6 +1,6 @@
 # Zermitt
 
-The home page is a seven-section product story built in the **Calabash** design system. See the [landing-page claim audit](docs/LANDING_CLAIMS.md), [image credits](docs/IMAGE_CREDITS.md), and [responsive screenshots](docs/screenshots/).
+The home page is a seven-section product story built in the **Calabash** design system. The app screens (`/wallet`, `/send`, `/claim`, `/r`) use a dark phone UI built from the approved designs in `docs/design/app/`. See the [landing-page claim audit](docs/LANDING_CLAIMS.md), [image credits](docs/IMAGE_CREDITS.md), [landing screenshots](docs/screenshots/) and [app screenshots at 390px](docs/screenshots/app/).
 
 **Send money home with one sentence.** Type "send $50 to mum". Zermitt quotes
 the route into USDC on NEAR through NEAR Intents and sends a claim link. Mum
@@ -90,12 +90,12 @@ hash, TEE check) · `contracts/receipts/` (Rust contract, wasm committed).
 | --- | --- |
 | Chat-to-send ("send $50 to mum") | ✅ NEAR AI Cloud (TEE) with `NEARAI_API_KEY`, Anthropic with `ANTHROPIC_API_KEY`, deterministic parser with no keys |
 | Routing via NEAR Intents | ✅ live 1Click quotes for USDT or NEAR (on NEAR) → USDC · 🧪 swap execution simulated in demo mode · `LIVE_INTENTS` mainnet swap implemented but not yet exercised · other assets and chains: 🗺️ |
-| Quote and confirm before sending | ✅ amount, fee, rate and time shown before confirming |
+| Quote and confirm before sending | ✅ amount in and out, fee and arrival time shown before confirming |
 | Claim links | ✅ funded and claimed on testnet; shareable via WhatsApp/SMS |
 | Google sign-in | ✅ Privy, identity only, when `DEMO_MODE=false` and `NEXT_PUBLIC_PRIVY_APP_ID` are set; simulated in demo mode so judges need no account |
 | Named sub-accounts (`mama.zermitt.testnet`) | ✅ recipient picks a name; validated and checked for availability |
 | Gasless claims | ✅ recipient signs nothing on-chain; the relayer pays every step |
-| Dollar balance | ✅ `/wallet`: USDC balance and history with transaction links |
+| Dollar balance | ✅ `/wallet`: live USDC balance for the account on this device and its received transfers, each linking to its receipt |
 | Receipt page | ✅ `/r/[id]` reads from the contract and verifies the hash in the browser |
 | On-chain receipt contract | ✅ `receipts-v2.zermitt.testnet` (v1 `receipts.zermitt.testnet` still read); Rust + near-sdk, wasm committed |
 | Fee comparison | ✅ shown on receipts; figures are estimates, source cited below |
@@ -156,8 +156,9 @@ complete but skip the receipt. Deploy your own copy from
 `contracts/receipts/res/zermitt_receipts.wasm` and set `RECEIPTS_CONTRACT`
 and `NEXT_PUBLIC_RECEIPTS_CONTRACT` to record them.
 
-In the browser: `/send` → "send $5 to mum" → Confirm → open the claim link →
-Continue with Google → pick a name → Claim (about a minute) → `/wallet` → receipt.
+In the browser: `/send` → type "Send $5 to Mum" → **Get a quote** → **Confirm and
+send** → open the claim link → pick a name → **Continue with Google** (the claim
+starts after sign-in and takes about a minute) → `/wallet` → receipt.
 
 ### Receipts
 
@@ -226,9 +227,11 @@ against mainnet yet**.
   Rust contract with unit tests. Receipts that verify from the chain alone.
   TEE attestation checked and bound to each receipt. 43 TypeScript tests,
   and a fresh clone runs with no keys.
-- **Design:** mobile-first flow built around the recipient. A large amount
-  and the sender's name, one button to claim, plain language ("digital
-  dollars", "Gas paid by Zermitt"), and clear loading, error and empty states.
+- **Design:** a dark, mobile-first phone UI (centred 430px column on desktop)
+  built around the recipient: a large amount and the sender's name, one
+  button to claim, plain language ("Gas is paid by Zermitt"), honest testnet
+  labels, and loading, error, empty, pending and already-claimed states.
+  Inline SVG icons, labelled inputs, visible focus rings, reduced-motion support.
 - **Impact:** remittances are a large global market with roughly 6% average
   fees. Zermitt targets the receiver who has never used crypto: a Google
   login is the whole onboarding.
