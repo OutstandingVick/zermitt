@@ -53,6 +53,9 @@ body{overflow-x:hidden}.container{width:min(calc(100% - 32px),520px)}
 /* ───────── Zermitt app (dark phone UI) — everything scoped under .zapp ───────── */
 .zapp{--z-bg:#071013;--z-surface:#11191C;--z-line:#1E2A2E;--z-line-2:#2A383C;--z-text:#F4F1EA;--z-muted:#8C979B;--z-ink:#071013;--z-ink-2:#3F4A4E;--z-orange:#E4572E;--z-lemon:#F0F66E;--z-blue:#058ED9;--z-paper:#F4F1EA;--z-r-card:22px;--z-r-hero:28px;--z-font:var(--font-quicksand),system-ui,sans-serif;--z-display:var(--font-ultra),serif;--z-accent:var(--font-fauna),serif;min-height:100vh;min-height:100dvh;background:var(--z-bg);color:var(--z-text);font:500 15px/1.45 var(--z-font)}
 body:has(.zapp){background:#071013}
+/* desktop backdrop around the phone column; the column itself stays dark */
+.zapp{background:linear-gradient(135deg,#058ED9 0%,#F0F66E 100%) fixed}
+.zapp-col{background:var(--z-bg);box-shadow:0 0 60px rgba(7,16,19,.35)}
 .zapp *{box-sizing:border-box}
 /* resets: zero/element specificity so component classes always win */
 :where(.zapp) :where(a){color:inherit}
