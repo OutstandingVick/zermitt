@@ -41,7 +41,8 @@ export function parseIntentFallback(text: string): SendIntent {
   const unit = amountMatch?.[3]?.toLowerCase();
   const asset = unit === "near" ? "NEAR" : unit === "usdt" ? "USDT" : "USDC";
 
-  const toMatch = cleaned.match(/\bto\s+([a-z0-9._\- ]+?)(?:[.!?,]|$)/i);
+  // The recipient ends at punctuation, end of text, or a purpose ("… to mum for groceries").
+  const toMatch = cleaned.match(/\bto\s+([a-z0-9._\- ]+?)(?=\s+for\b|[.!?,]|$)/i);
   if (!toMatch) throw new ParseError(`I couldn't find a recipient. Try: "send $50 to mum"`);
   const recipient = toMatch[1].trim().toLowerCase().replace(/\s+/g, "-");
   if (!recipient) throw new ParseError(`I couldn't find a recipient.`);

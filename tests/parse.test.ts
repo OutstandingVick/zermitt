@@ -32,6 +32,11 @@ describe("parseIntentFallback", () => {
     expect(parseIntentFallback("send $10 to uncle joe").recipient).toBe("uncle-joe");
   });
 
+  it("stops the recipient at a purpose", () => {
+    expect(parseIntentFallback("Send $40 to Mum for groceries.")).toMatchObject({ amount: 40, recipient: "mum" });
+    expect(parseIntentFallback("send $20 to aunty grace for school fees").recipient).toBe("aunty-grace");
+  });
+
   it("ignores trailing punctuation", () => {
     expect(parseIntentFallback("send $10 to mum!").recipient).toBe("mum");
   });
