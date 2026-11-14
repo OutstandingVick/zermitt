@@ -9,3 +9,6 @@ body:has(.landing) .app-footer{display:none}
 body{overflow-x:hidden}.container{width:min(calc(100% - 32px),520px)}
 @media(max-width:760px){.site-nav{justify-content:space-between}.nav-actions{margin-left:0}.nav-actions .btn{padding-inline:14px}}
 @media(max-width:760px){.container{width:auto!important;margin-inline:16px!important}.nav-actions{display:none}.site-nav{width:calc(100% - 32px)}.slim-footer{overflow:hidden}.slim-footer small{max-width:320px}}
+.landing .photo-hero{width:100%;max-width:none;min-height:calc(100svh - 30px);margin-top:-98px;border-radius:0}
+.landing .photo-hero .hero-copy{padding-top:110px}
+@media(max-width:760px){.landing .photo-hero{width:100%;min-height:calc(100svh - 30px);margin-top:-90px}.landing .photo-hero .hero-copy{padding-top:100px}}
