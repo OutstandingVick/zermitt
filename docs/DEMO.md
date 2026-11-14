@@ -24,7 +24,7 @@ real Google sign-in, the private agent, and no local server to keep running.
    the bottom bar stays pinned to the phone's bottom edge.
 7. Fallback if the live site misbehaves: run locally with
    `pnpm build && DEMO_MODE=false pnpm start -p 3007` and swap
-   `https://zermitt.vercel.app` for `https://zermitt.vercel.app` below.
+   `https://zermitt.vercel.app` for `http://localhost:3007` below.
 
 ## Shot list (live site)
 
