@@ -16,7 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { KeyPair } from "near-api-js";
-import { AppShell, Button, Icon, Label, Money, Skeleton, StatusDot } from "../../ui";
+import { AppShell, Button, Icon, Label, Money, Skeleton, StatusDot, cents2 } from "../../ui";
 
 type ClaimInfo = {
   state: { state: string; reason?: string; recipientAccountId?: string };
@@ -70,7 +70,7 @@ function readClaimKey(id: string): string | null {
   }
 }
 
-function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
+function ClaimFlow({ info, id, onClaimed }: { info: ClaimInfo; id: string; onClaimed: () => void }) {
   const parent = info.parentAccount ?? "zermitt.testnet";
   const [name, setName] = useState(info.suggestedName ?? "");
   const [email, setEmail] = useState<string | null>(null);
@@ -112,6 +112,7 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
         sessionStorage.removeItem(intentStore(id));
       } catch {}
       setSuccess(data);
+      onClaimed();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setWantClaim(false);
@@ -121,7 +122,7 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
     } finally {
       setBusy(false);
     }
-  }, [id, name, email]);
+  }, [id, name, email, onClaimed]);
 
   // Signing in is the claim: run it once an identity and the intent exist.
   useEffect(() => {
@@ -150,7 +151,7 @@ function ClaimFlow({ info, id }: { info: ClaimInfo; id: string }) {
             <span className="z-badge z-badge-lemon">It&apos;s yours</span>
           </p>
           <p className="z-center z-sm" style={{ margin: "10px 0 14px" }}>
-            {Number(success.usdcAmount).toFixed(2)} USDC is in <b>{success.accountId}</b>
+            {cents2(Number(success.usdcAmount))} USDC is in <b>{success.accountId}</b>
           </p>
           <ul className="z-timeline">
             {Object.entries(success.txUrls).map(([k, url]) => (
@@ -244,6 +245,8 @@ export default function ClaimPage() {
   const { id } = useParams<{ id: string }>();
   const [info, setInfo] = useState<ClaimInfo | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const [claimed, setClaimed] = useState(false);
+  const markClaimed = useCallback(() => setClaimed(true), []);
 
   useEffect(() => {
     rememberClaimKey(id);
@@ -287,10 +290,10 @@ export default function ClaimPage() {
       <section className="z-center" style={{ marginTop: 44 }} aria-label="Amount">
         <Label>{info.senderName ? `${info.senderName} sent you` : "You've received"}</Label>
         <div style={{ marginTop: 12 }}><Money value={usdc} size={64} /></div>
-        <p className="z-mut z-sm" style={{ margin: "8px 0 0" }}>{usdc.toFixed(2)} USDC on NEAR, waiting for you</p>
+        <p className="z-mut z-sm" style={{ margin: "8px 0 0" }}>{cents2(usdc)} USDC on NEAR, {claimed ? "now in your account" : "waiting for you"}</p>
       </section>
       <div className="z-spacer" style={{ minHeight: 32 }} />
-      <ClaimFlow info={info} id={id} />
+      <ClaimFlow info={info} id={id} onClaimed={markClaimed} />
     </AppShell>
   );
 }

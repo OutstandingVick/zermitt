@@ -13,7 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AppShell, BottomNav, Card, IconButton, Label, Money, Skeleton, titleCase } from "../ui";
+import { AppShell, BottomNav, Card, IconButton, Label, Money, Skeleton, cents2, titleCase } from "../ui";
 
 type WalletData = {
   accountId: string;
@@ -114,7 +114,7 @@ function WalletInner() {
                 <div className="z-mut z-xs">Claimed · {new Date(h.claimedAt).toLocaleDateString()}</div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontWeight: 700 }}>+${Number(h.amountUsdc).toFixed(2)}</div>
+                <div style={{ fontWeight: 700 }}>+${cents2(Number(h.amountUsdc))}</div>
                 <div className="z-blue" style={{ fontSize: 11 }}>Receipt ›</div>
               </div>
             </Link>
@@ -128,8 +128,8 @@ function WalletInner() {
         )}
       </Card>
 
-      <div id="profile" style={{ marginTop: 26, scrollMarginTop: 20 }}>
-        <Label className="" >Profile</Label>
+      <div id="profile" style={{ marginTop: 26, scrollMarginTop: 20, display: "flex", flexDirection: "column", gap: 10 }}>
+        <Label>Profile</Label>
         <Card className="" pad={false}>
           <dl className="z-rows">
             <div className="z-rowi"><dt>Account</dt><dd>{account ?? "—"}</dd></div>

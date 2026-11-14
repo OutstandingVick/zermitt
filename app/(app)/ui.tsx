@@ -119,8 +119,13 @@ export function Skeleton({ h, w = "100%", style }: { h: number; w?: number | str
 /* ── Helpers ───────────────────────────────────────────────────────── */
 /** "$39.95" with muted cents, as in the designs. */
 export function Money({ value, size }: { value: number; size: number }) {
-  const [whole, cents] = Math.max(0, value).toFixed(2).split(".");
+  const [whole, cents] = cents2(value).split(".");
   return <p className="z-amount" style={{ fontSize: size }}>${Number(whole).toLocaleString("en-US")}<span className="cents">.{cents}</span></p>;
+}
+
+/** Two decimals, rounded DOWN so a recipient amount is never overstated. */
+export function cents2(value: number): string {
+  return (Math.floor(Math.max(0, value) * 100 + 1e-9) / 100).toFixed(2);
 }
 
 export function shortHash(h: string, head = 4, tail = 4): string {

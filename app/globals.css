@@ -15,6 +15,7 @@ body{overflow-x:hidden}.container{width:min(calc(100% - 32px),520px)}
 .photo-hero img{z-index:0}.photo-hero .hero-shade{z-index:1}.photo-hero .hero-copy{z-index:2}
 .landing .problem{background-image:var(--brand-gradient)}
 .landing .family-split{background-image:var(--brand-gradient)}
+.landing .near{background-image:var(--brand-gradient)}
 .landing .photo-hero{width:100%;max-width:none;min-height:calc(100svh - 30px);margin-top:-98px;border-radius:0}
 .landing .photo-hero .hero-copy{padding-top:110px}
 @media(max-width:760px){.landing .photo-hero{width:100%;min-height:calc(100svh - 30px);margin-top:-90px}.landing .photo-hero .hero-copy{padding-top:100px}}
@@ -23,7 +24,9 @@ body{overflow-x:hidden}.container{width:min(calc(100% - 32px),520px)}
 .zapp{--z-bg:#071013;--z-surface:#11191C;--z-line:#1E2A2E;--z-line-2:#2A383C;--z-text:#F4F1EA;--z-muted:#8C979B;--z-ink:#071013;--z-ink-2:#3F4A4E;--z-orange:#E4572E;--z-lemon:#F0F66E;--z-blue:#058ED9;--z-paper:#F4F1EA;--z-r-card:22px;--z-r-hero:28px;--z-font:var(--font-quicksand),system-ui,sans-serif;--z-display:var(--font-ultra),serif;--z-accent:var(--font-fauna),serif;min-height:100vh;min-height:100dvh;background:var(--z-bg);color:var(--z-text);font:500 15px/1.45 var(--z-font)}
 body:has(.zapp){background:#071013}
 .zapp *{box-sizing:border-box}
-.zapp a{color:inherit}
+/* resets: zero/element specificity so component classes always win */
+:where(.zapp) :where(a){color:inherit}
+:where(.zapp) h1,:where(.zapp) h2,:where(.zapp) h3{font:inherit;margin:0}
 .zapp :focus-visible{outline:3px solid var(--z-lemon);outline-offset:3px}
 .zapp-skip{position:fixed;z-index:100;left:8px;top:8px;background:var(--z-lemon);color:var(--z-ink);padding:10px 14px;border-radius:999px;font-weight:700;transform:translateY(-200%)}
 .zapp-skip:focus{transform:none}
@@ -67,6 +70,7 @@ body:has(.zapp){background:#071013}
 .z-rows{margin:0;padding:6px 18px}
 .z-rowi{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:13px 0;border-bottom:1px solid var(--z-line)}
 .z-rowi:last-child{border-bottom:0}
+.z-tight .z-rowi{padding:6px 0;border:0}
 .z-rowi dt{color:var(--z-muted);white-space:nowrap}
 .z-rowi dd{margin:0;font-weight:700;text-align:right;min-width:0;overflow-wrap:anywhere}
 .z-paper .z-rowi{padding:5px 0;border:0;font-size:13px}

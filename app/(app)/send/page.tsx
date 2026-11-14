@@ -8,7 +8,7 @@
  */
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { AppShell, Button, Chip, Icon, Label, Row, StatusDot, TopBar, titleCase } from "../ui";
+import { AppShell, Button, Chip, Icon, Label, Row, StatusDot, TopBar, cents2, titleCase } from "../ui";
 
 type Intent = { amount: number; asset: string; recipient: string };
 type Quote = { amountInFormatted: string; amountOutFormatted: string; feeUsd: number; rate: number; timeEstimateSec: number };
@@ -104,7 +104,7 @@ export default function SendPage() {
   /* ── Step 3: link shared ─────────────────────────────────────────── */
   if (step === "shared" && success && intent && quote) {
     const from = senderName.trim() ? ` from ${senderName.trim()}` : "";
-    const shareText = encodeURIComponent(`You've received $${Number(quote.amountOutFormatted).toFixed(2)}${from} on Zermitt. Claim it here: ${success.claimLink}`);
+    const shareText = encodeURIComponent(`You've received $${cents2(Number(quote.amountOutFormatted))}${from} on Zermitt. Claim it here: ${success.claimLink}`);
     return (
       <AppShell>
         <TopBar close="/wallet" />
@@ -112,7 +112,7 @@ export default function SendPage() {
           <div className="z-success-ring"><Icon name="check" size={38} stroke={2.6} /></div>
           <h1 className="z-u" style={{ fontSize: 30, lineHeight: 1.1, margin: "20px 0 0" }}>Link ready<br /><span className="z-f">for {who}</span></h1>
           <p className="z-mut" style={{ margin: "10px 24px 0" }}>
-            They open it, sign in with Google and the ${Number(quote.amountOutFormatted).toFixed(2)} is theirs. No app, no gas.
+            They open it, sign in with Google and the ${cents2(Number(quote.amountOutFormatted))} is theirs. No app, no gas.
           </p>
         </div>
 
@@ -161,12 +161,12 @@ export default function SendPage() {
         <section className="z-quote" style={{ marginTop: 26 }} aria-label="Quote">
           <Label>You send</Label>
           <p className="z-u" style={{ fontSize: 44, lineHeight: 1.05, margin: "6px 0 0" }}>
-            {Number(quote.amountInFormatted).toFixed(2)} <span className="z-f" style={{ fontSize: 22 }}>{payWith}</span>
+            {cents2(Number(quote.amountInFormatted))} <span className="z-f" style={{ fontSize: 22 }}>{payWith}</span>
           </p>
           <div className="z-quote-sep" aria-hidden="true"><span /><Icon name="arrowDown" /><span /></div>
           <Label>{who} gets</Label>
           <p className="z-u" style={{ fontSize: 44, lineHeight: 1.05, margin: "6px 0 0" }}>
-            {Number(quote.amountOutFormatted).toFixed(2)} <span className="z-f" style={{ fontSize: 22 }}>USDC</span>
+            {cents2(Number(quote.amountOutFormatted))} <span className="z-f" style={{ fontSize: 22 }}>USDC</span>
           </p>
         </section>
 

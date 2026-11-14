@@ -15,7 +15,7 @@ import { useParams } from "next/navigation";
 import { canonicalJson, sha256Hex, type ReceiptMeta } from "@/lib/receipts/hash";
 import { feeComparison, COMPARISON } from "@/lib/receipts/comparison";
 import { checkTeeBundle, type TeeBundle, type TeeCheck } from "@/lib/receipts/tee";
-import { AppShell, Button, Icon, Label, Row, Skeleton, TopBar, shortHash, timeAgo, titleCase } from "../../ui";
+import { AppShell, Button, Icon, Label, Row, Skeleton, TopBar, cents2, shortHash, timeAgo, titleCase } from "../../ui";
 
 const CONTRACTS = [
   process.env.NEXT_PUBLIC_RECEIPTS_CONTRACT ?? "receipts-v2.zermitt.testnet",
@@ -151,7 +151,7 @@ export default function ReceiptPage() {
   const m = r.meta;
   const amount = Number(m.amount_usdc) / 1e6;
   const fee = Number(m.fee_usd);
-  const cmp = feeComparison(amount, fee);
+  const cmp = feeComparison(Number(cents2(amount)), fee);
   const route = m.route_summary.split(" via ")[0].replace("→", " → ");
   const tee = m.agent_provider === "nearai";
   const payout = m.tx_hashes[4] ?? m.tx_hashes[m.tx_hashes.length - 1];
@@ -171,7 +171,7 @@ export default function ReceiptPage() {
             <span className="z-badge z-badge-muted">Checking…</span>
           )}
         </div>
-        <p className="z-u" style={{ fontSize: 40, lineHeight: 1.05, margin: "14px 0 0" }}>${amount.toFixed(2)}</p>
+        <p className="z-u" style={{ fontSize: 40, lineHeight: 1.05, margin: "14px 0 0" }}>${cents2(amount)}</p>
         <p className="z-sm" style={{ margin: "2px 0 0", color: "var(--z-ink-2)", overflowWrap: "anywhere" }}>
           Claimed into {m.recipient_account} · {timeAgo(r.recorded_at_ms)}
         </p>
@@ -211,7 +211,7 @@ export default function ReceiptPage() {
               <div className="z-mut z-xs">NEAR AI Cloud · {(m.model ?? "").split("/").pop()}</div>
             </div>
           </div>
-          <dl className="z-xs" style={{ margin: "10px 0 0" }}>
+          <dl className="z-xs z-tight" style={{ margin: "10px 0 0" }}>
             <Row label="Attestation">{shortHash(m.attestation_hash ?? "")}</Row>
             <Row label="Signed by">{shortHash(m.signing_key ?? "", 6, 4)}</Row>
           </dl>
