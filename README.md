@@ -10,6 +10,8 @@ receipt on NEAR that anyone can verify.
 
 **Hackathon tracks:** Payments & Remittances · Privacy & Private AI
 
+**Live demo:** https://zermitt.vercel.app (app at [/app](https://zermitt.vercel.app/app)). It runs on NEAR testnet with real Google sign-in and the private agent; sends are capped per visitor to protect the test relayer.
+
 > **Status:** the full flow runs on NEAR **testnet**: sentence → live quote →
 > claim link → Google sign-in → named account → USDC payout → on-chain
 > receipt. NEAR Intents has no testnet, so in demo mode the currency swap is
@@ -87,7 +89,8 @@ Other states: [empty home](docs/screenshots/app/home-empty.png) ·
                                                 3. storage_deposit on usdc.fakes.testnet (relayer pays)
                                                 4. ft_transfer USDC → new account (relayer pays)
                                                 5. record_receipt on receipts-v2.zermitt.testnet
- /app  balance + history                     data/transfers.json (local record)
+ /app  balance + history                     transfer store: data/transfers.json locally,
+                                              Upstash Redis when deployed
  /r/<id>  receipt read FROM THE CONTRACT, hash verified in the browser
 ```
 
@@ -275,6 +278,23 @@ against mainnet yet**.
   your own receipts contract).
 - **TEE:** raw TDX/NVIDIA quotes are not verified locally.
 - **Test money:** payouts use `usdc.fakes.testnet`, a public test token.
+- **Public demo limits:** the live site allows 5 sends per visitor per hour
+  and 40 per day overall (`SEND_LIMIT_PER_IP_PER_HOUR`, `SEND_LIMIT_PER_DAY`),
+  because every send spends about 1.6 test NEAR from the relayer.
+
+## Deploying
+
+The live demo runs on Vercel. Serverless functions can't keep files between
+requests, so the transfer store and attestation reports use Redis
+(Upstash for Redis from the Vercel Marketplace) whenever `KV_REST_API_URL`
+and `KV_REST_API_TOKEN` are set; without them they fall back to
+`data/transfers.json` and `data/attestations/`, as for local runs. The store
+is private because transfer records hold claim links. The claim route may run
+up to 5 minutes and the confirm route 2 (`maxDuration`), since a claim sends
+five transactions in a row. Set the same variables as `.env.example`
+(relayer, `NEARAI_API_KEY`, `NEXT_PUBLIC_PRIVY_APP_ID`, `DEMO_MODE=false`) as
+Vercel environment variables, and add the site's URL to Privy's allowed
+domains.
 
 ## Roadmap
 
